@@ -1,0 +1,26 @@
+body {
+    background-color: antiquewhite;
+    background-image: url("http://cs-server.usc.edu:45678/hw/hw8/images/background.png")
+}
+
+:invalid, :required {
+    border: 5px sold #ffdddd;
+}
+
+div {
+    width: 80%;
+    margin: 0 auto;
+}
+
+div.message {
+    font-size: 12px;
+}
+
+div.well {
+    background-color: white;
+}
+
+br {
+    margin-top: 20px;
+    margin-bottom: 20px;
+}
