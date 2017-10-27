@@ -1,21 +1,36 @@
+var selectedText;
+
+(function () {
+  'use strict';
 var app = angular.module('MyApp', ['ngMessages', 'ngMaterial', 'material.svgAssetsCache']);
-app.controller('myCtrl', function($scope, $http) {
-    $scope.searchQuery = 
+app.controller('myCtrl', function($scope, $http, $log) {
+    $scope.searchQuery = searchQuery;
+    $scope.selectedItemChange = selectedItemChange;
+    $scope.searchTextChange = searchTextChange();
+    
     function searchQuery(query) {
-            if (query == '') query = 'a';
+            if (query === '') { query = 'a'; }
             // make the input Red if all spaces
             return $http.get('autocomplete.php?search=' + query)
             .then(function(obj){
-                console.log(obj);
-                results = Array();
-                for (record of obj['data']) {
-                    results.push(record['Symbol'] + ' - ' + record['Name'] + ' (' + record['Exchange'] + ')')
-                }
-                return results;
-        });
-    };
+                if (!(obj.data instanceof Array)) { return []; }
+                return obj.data.map(function(record) {
+                    return {
+                        sym: record.Symbol,
+                        display: record.Symbol + ' - ' + record.Name + ' (' + record.Exchange + ')'
+                    };
+                });
+            });
+    }
+    
+     function selectedItemChange(item) {
+        $log.info('Item changed to ' + JSON.stringify(item));
+        console.log(item);
+        selectedText = item.sym;
+    }
 
-    $scope.searchTextChange = function(text) {
-        console.log('changed to ' + text);
+    function searchTextChange(text) {
+        $log.info('Text changed to ' + text);
     }
 });
+})();

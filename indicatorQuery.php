@@ -14,7 +14,8 @@
         $meta_data = $obj->{'Meta Data'};
         $lastDate = $meta_data->{'3: Last Refreshed'};
         
-        $series = $obj->{'Technical Analysis: ' . $indicator};
+        $series = $obj->{'Technical Analysis: ' . strtoupper($indicator)};
+//        var_dump($series);
         
         $subtitles = array_keys((array)($series->$lastDate));
         $records = array();
