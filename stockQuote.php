@@ -26,15 +26,20 @@
        
        # hard-coded
         date_default_timezone_set('America/New_York');
-        $records = array();
+        $dates = array();
+        $prices = array();
+        $volumes = array();
         foreach ($time_series as $date => $record) {
-            array_push($records, array(strtotime($date), +$record->{'4. close'}, +$record->{'6. volume'}));
+//            array_push($records, array(strtotime($date), +$record->{'4. close'}, +$record->{'6. volume'}));
+            array_push($dates, $date);
+            array_push($prices, +$record->{'4. close'});
+            array_push($volumes, +$record->{'6. volume'});
         }
         
-        $change = round(($records[0][1] - $records[1][1]) / $records[0][1], 2);
+        $change = round(($prices[0] - $prices[1]) / $prices[1], 2);
 
         
-        $wrap = array("Stock Ticker" => $symbol, "Last Price" => $lastPrice, "Open" => $lastOpen, 'TimeStamp' => $timeStamp, "Day's Range" => $daysRange, "Volume" => $lastVolume, "Change" => $change, 'series' => $records,);
+        $wrap = array("Stock Ticker" => $symbol, "Last Price" => $lastPrice, "Open" => $lastOpen, 'TimeStamp' => $timeStamp, "Day's Range" => $daysRange, "Volume" => $lastVolume, "Change" => $change, 'dates' => $dates, 'prices' => $prices, 'volumes' => $volumes);
         $obj = json_encode($wrap, JSON_PRETTY_PRINT);
         echo $obj;
     }

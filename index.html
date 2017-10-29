@@ -4,6 +4,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <link rel="stylesheet" href="https://ajax.googleapis.com/ajax/libs/angular_material/1.1.0/angular-material.min.css">
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
+    <link href="https://gitcdn.github.io/bootstrap-toggle/2.2.2/css/bootstrap-toggle.min.css" rel="stylesheet">
     <link rel="stylesheet" href="stock_style.css">
 
     <!-- jQuery library -->
@@ -19,22 +20,28 @@
 <div class="center">
     <div class="container-fluid well">
         <div class="col-sm-3"> Enter Stock Ticker Symbol <b>*</b> </div>
-        <div class="col-sm-6" ng-controller="myCtrl" layout="column" ng-cloak="" class="autocompletedemoBasicUsage" ng-app="MyApp">
+        <div class="col-sm-6" ng-controller="myCtrl as ctrl" layout="column" ng-cloak="" class="autocompletedemoBasicUsage" ng-app="MyApp">
 <!--
             <pre>$error = {{ searchForm.autocompleteField.$error | json }}
             </pre>
 -->
             <form name="searchForm">
                 <label>
-                <md-autocomplete md-input-name="autocompleteField" md-no-cache="true" 
-                md-selected-item="selectedItem" 
-                md-selected-item-change="selectedItemChange(item)" 
-                md-search-text="searchText" 
-                md-search-text-change="searchTextChange(searchText)" 
-                md-items="item in searchQuery(searchText)" 
-                md-item-text="item.display" md-input-maxlength="10" placeholder="eg. AAPL" ng-pattern="/^[a-zA-Z]+$/" required>
+                <md-autocomplete md-input-name="autocompleteField" ng-disabled="ctrl.isDisabled" md-no-cache="ctrl.noCache"
+                
+                md-selected-item="ctrl.selectedItem" 
+                md-selected-item-change="ctrl.selectedItemChange(item)" 
+                
+                md-search-text="ctrl.searchText" 
+                md-search-text-change="ctrl.searchTextChange(ctrl.searchText)"
+                
+                md-items="item in ctrl.searchQuery(ctrl.searchText)" 
+                md-item-text="item.display" placeholder="eg. AAPL" 
+                 
+                required>
+<!--                ng-pattern="/^[a-zA-Z]+$/"-->
                     <md-item-template>
-                      <span md-highlight-text="searchText" md-highlight-flags="^i">{{item.display}}</span>
+                      <span md-highlight-text="ctrl.searchText" md-highlight-flags="^i">{{item.display}}</span>
                     </md-item-template>
                 </md-autocomplete>
                 </label>
@@ -45,21 +52,24 @@
                 </div>
             </form>
         </div>
+        
         <div class="col-sm-3">
-            <button> <span class="glyphicon glyphicon-search" aria-hidden="true" onclick="console.log(selectedText)"></span> Get Quote
+            <button onclick="console.log(selectedText);
+                        showStockDetails(selectedText, 'infotab', 'stockchart')"> 
+                <span class="glyphicon glyphicon-search" aria-hidden="true" ></span> Get Quote
             </button>
-            <button> <span class="glyphicon glyphicon-refresh" aria-hidden="true"> Clear </span>
+            <button onclick='initCache()'> <span class="glyphicon glyphicon-refresh" aria-hidden="true"> Clear </span>
             </button>
         </div>
     </div>
     <br>
-    <div class="container-fluid well">
-        <div class="tab-content">
-            <div id="favlist" class="tab-pane fade in active panel panel-default">
+    
+    <div class="container-fluid well tab-content">
+            <!--   add to class in active   -->
+            <div id="favlist" class="tab-pane fade panel panel-default">
                 <!--      TODO:       -->
                 <div class="panel-heading"> Favorite List
-                    <button type="button" class="btn btn-default">
-                    on/off</button>
+                    <input type="checkbox" data-toggle="toggle">
                     <button type="button" class="btn btn-default">
                         <span class="glyphicon glyphicon-refresh" aria-hidden="true"></span>
                     </button>
@@ -69,7 +79,8 @@
                 </div>
                 <div class="panel-body">Panel Content</div>
             </div>
-            <div id="details" class="tab-pane fade panel panel-default">
+        
+            <div id="details" class="tab-pane fade in active panel panel-default">
                 <div class="panel-heading"> 
                     <button class="btn btn-default">
                         <a data-toggle="tab" href="#favlist"><span class="glyphicon glyphicon-chevron-left"></span></a>
@@ -77,14 +88,23 @@
                     Stock Details 
                 </div>
                 <div class="panel-body">
-                    <ul class="nav nav-pills">
+                    <ul class="nav nav-pills row">
                         <li class="active"><a href="#">Current Stock</a></li>
                         <li><a href="#">Historical Charts</a></li>
                         <li><a href="#">News Feeds</a></li>
                     </ul>
+                    <div class="row">
+                        <div id= "infotab" class="col">
+                            <div class="progress" style="display: none">
+                                <div class="progress-bar progress-bar-striped active" role="progressbar" aria-valuenow="50" aria-valuemin="0" aria-valuemax="100" style="width:50%"></div>
+                            </div>
+                        </div>    
+                        <div id="stockchart" class="col">
+                            chart
+                        </div>
+                    </div>
                 </div>
             </div>
-        </div>
     </div>
     
     <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.5.5/angular.min.js"></script>
@@ -95,10 +115,14 @@
     <!-- Angular Material Library -->
     <script src="https://ajax.googleapis.com/ajax/libs/angular_material/1.1.4/angular-material.min.js"></script>
     <script src="http://ngmaterial.assets.s3.amazonaws.com/svg-assets-cache.js"></script>
+    <script src="https://gitcdn.github.io/bootstrap-toggle/2.2.2/js/bootstrap-toggle.min.js"></script>
     
-    <script src="./autocompleteModule.js">
-        
-    </script>
+    <!-- Highcharts -->
+    <script src="https://code.highcharts.com/highcharts.js"></script>
+	<script src="https://code.highcharts.com/modules/exporting.js"></script>
+    
+    <script src="./autocompleteModule.js"></script>
+    <script src="./stockinfo.js"></script>
 </div>
 </body>
 </html>

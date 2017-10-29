@@ -3,10 +3,12 @@ var selectedText;
 (function () {
   'use strict';
 var app = angular.module('MyApp', ['ngMessages', 'ngMaterial', 'material.svgAssetsCache']);
-app.controller('myCtrl', function($scope, $http, $log) {
-    $scope.searchQuery = searchQuery;
-    $scope.selectedItemChange = selectedItemChange;
-    $scope.searchTextChange = searchTextChange();
+app.controller('myCtrl', function($http, $log) {
+    var self = this;
+    self.searchQuery = searchQuery;
+    self.selectedItemChange = selectedItemChange;
+    self.searchTextChange = searchTextChange;
+    self.showStockInfo = showStockInfo;
     
     function searchQuery(query) {
             if (query === '') { query = 'a'; }
@@ -23,14 +25,25 @@ app.controller('myCtrl', function($scope, $http, $log) {
             });
     }
     
-     function selectedItemChange(item) {
+    function selectedItemChange(item) {
         $log.info('Item changed to ' + JSON.stringify(item));
-        console.log(item);
-        selectedText = item.sym;
+//        console.log(item);
+        if (item.sym !== undefined) {
+            selectedText = item.sym;
+            self.searchText = item.sym;
+        }
+//        $log.info(self.searchText);
     }
 
     function searchTextChange(text) {
         $log.info('Text changed to ' + text);
+        selectedText = text;
+    }
+    
+    function showStockInfo(searchText) {
+        console.log('aaa');
+        $log.info('search symbol ' + searchText);
+        return searchText;
     }
 });
 })();
