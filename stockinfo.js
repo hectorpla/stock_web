@@ -5,6 +5,7 @@ function initCache() {
 }
 initCache();
 
+var CHARTLENGTH = 100;
 
 function createRow(header, data, imgSrc=null) {
         var row = document.createElement('tr');
@@ -97,20 +98,23 @@ function zip(arr1, arr2) {
     return arr1.map(function (d, i) {return [d, arr2[i]];})
 }
 
-
-function plotStockPrice() {
+function compressedDates() {
     var dates = null;
-    var prices = stockPlotOjbect.prices;
-    var volumes = stockPlotOjbect.volumes;
-    
     if (stockPlotOjbect.compressedDates === undefined) {
         dates = stockPlotOjbect.dates;
-        dates = dates.map(function (d) {return              d.slice(5).replace(/-/, '/')});
+        dates = dates.slice(0,  CHARTLENGTH).map(function (d) {return        d.slice(5).replace(/-/, '/')});
+        stockPlotOjbect.compressedDates = dates;
     }
     else {
         dates = stockPlotOjbect.compressedDates;
     }
-    
+    return dates;
+}
+
+function plotStockPrice() {
+    var dates = compressedDates();
+    var prices = stockPlotOjbect.prices.slice(0, CHARTLENGTH);
+    var volumes = stockPlotOjbect.volumes.slice(0, CHARTLENGTH);
     console.log(dates);
 
     var SYMBOL = stockPlotOjbect['Stock Ticker'];
@@ -135,6 +139,7 @@ function plotStockPrice() {
             categories: dates,
             tickLength: 0,
             showEmpty: false,
+            reversed: true,
             labels: {
                 step: 5,
                 rotation: -30
@@ -153,7 +158,7 @@ function plotStockPrice() {
             },
             gridLineWidth: 0,
             min: 0,
-            max: Math.ceil(maxVolume * 5.2),
+            max: Math.ceil(maxVolume * 1.5),
             endOnTick: false,
             opposite: true
         }],
@@ -194,5 +199,119 @@ function plotStockPrice() {
             color: 'red',
             maxPointWidth: 3
         }]
+    });
+}
+
+function plotHistChart() {
+    var dates = null;
+    var prices = stockPlotOjbect.prices;
+    
+    if (stockPlotOjbect.utcDates === undefined) {
+        dates = stockPlotOjbect.dates;
+        dates = dates.map(function (date) {
+            return Math.round(new Date(date).getTime())
+        });
+        stockPlotOjbect.utcDates = dates;
+    }
+    else {
+        dates = stockPlotOjbect.utcDates;
+    }
+    
+    var data = zip(dates, prices);
+    data.reverse();
+    console.log(data);
+    
+    Highcharts.stockChart('histchart', {
+        chart: {
+            zoomType: 'x'
+        },
+        rangeSelector: {
+            buttons: [{
+                type: 'week',
+                count: 1,
+                text: '1w'
+            }, {
+                type: 'month',
+                count: 1,
+                text: '1m'
+            }, {
+                type: 'month',
+                count: 3,
+                text: '3m'
+            },{
+                type: 'month',
+                count: 6,
+                text: '6m'
+            }, {
+                type: 'year',
+                count: 1,
+                text: '1y'
+            }, {
+                type: 'all',
+                text: 'All'
+            }],
+            selected: 3
+        },
+        yAxis: {
+            title: {
+                text: 'Historical Prcies'
+            }
+        },
+        title: {
+            text: stockPlotOjbect["Stock Ticker"] + ' Stock Value'
+        },
+        subtitle: {
+            useHTML: true,
+            text: "<a href='https://www.alphavantage.co/'> Source: Alpha Vantage </a>"
+        },
+        series: [{
+            name: 'Price',
+            type: 'area',
+            data: data
+        }]
+
+    });
+}
+
+function plotLineChart(title, dates, seriesData) {
+    console.log(seriesData);
+    Highcharts.chart('stockChart', {
+        chart: {
+            width: null
+        },
+        title: {
+            text: title
+        },
+        subtitle: {
+            useHTML: true,
+            text: "<a href='https://www.alphavantage.co/'> Source: Alpha Vantage </a>"
+        },
+        xAxis: {
+            categories: dates,
+            tickLength: 0,
+            reversed: true, // reverse the x-aix
+            labels: {
+                step: 5,
+                rotation: -30
+            }
+        },
+        yAxis: {
+            title: {
+                text: title.split(' ').slice(-1)[0].slice(1,-1)
+            }
+        },
+        legend: {
+            layout: 'vertical',
+            align: 'right',
+            verticalAlign: 'middle'
+        },
+        plotOptions: {
+            series: {
+                marker: {
+                    radius: 2
+                }
+            }
+        },
+        series: seriesData
     });
 }

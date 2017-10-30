@@ -14,7 +14,8 @@
         $time_series = $obj->{'Time Series (Daily)'};
         
         $timeStamp = $meta_data->{'3. Last Refreshed'};
-        $latestRecord = $time_series->$timeStamp;
+        # doubtable
+        $latestRecord = $time_series->{explode(" ", $timeStamp)[0]};
         
         $symbol = $meta_data->{'2. Symbol'};
         $lastPrice = +$latestRecord->{'4. close'};
@@ -30,7 +31,6 @@
         $prices = array();
         $volumes = array();
         foreach ($time_series as $date => $record) {
-//            array_push($records, array(strtotime($date), +$record->{'4. close'}, +$record->{'6. volume'}));
             array_push($dates, $date);
             array_push($prices, +$record->{'4. close'});
             array_push($volumes, +$record->{'6. volume'});
