@@ -107,9 +107,15 @@
                             <div class="col">
                                 <div>
                                     <ul class="nav nav-tabs">
-                                      <li class="active"><a data-toggle="tab" href="#stockchart">Price</a></li>
-                                      <li><a data-toggle="tab" href="#SMA">SMA</a></li>
-                                      <li><a data-toggle="tab" href="#EMA">EMA</a></li>
+                                        <li class="active"><a data-toggle="tab" href="#stockchart">Price</a></li>
+                                        <li><a data-toggle="tab" onclick="processIndicator('SMA')" href="#SMA">SMA</a></li>
+                                        <li onclick="processIndicator('EMA')"><a data-toggle="tab" href="#EMA">EMA</a></li>
+                                        <li onclick="processIndicator('STOCH')"><a data-toggle="tab" href="#STOCH">STOCH</a></li>
+                                        <li onclick="processIndicator('RSI')"><a data-toggle="tab" href="#RSI">RSI</a></li>
+                                        <li onclick="processIndicator('ADX')"><a data-toggle="tab" href="#ADX">ADX</a></li>
+                                        <li onclick="processIndicator('CCI')"><a data-toggle="tab" href="#CCI">CCI</a></li>
+                                        <li onclick="processIndicator('BBANDS')"><a data-toggle="tab" href="#BBANDS">BBANDS</a></li>
+                                        <li onclick="processIndicator('MACD')"><a data-toggle="tab" href="#MACD">MACD</a></li>
                                     </ul>
                                 </div>
                                 <div class="tab-content">
@@ -121,6 +127,24 @@
                                     </div>
                                     <div id="EMA" class="tab-pane fade">
                                         ema
+                                    </div>
+                                    <div id="STOCH" class="tab-pane fade">
+                                        stoch
+                                    </div>
+                                    <div id="RSI" class="tab-pane fade">
+                                        rsi
+                                    </div>
+                                    <div id="ADX" class="tab-pane fade">
+                                        adx
+                                    </div>
+                                    <div id="CCI" class="tab-pane fade">
+                                        cci
+                                    </div>
+                                    <div id="BBANDS" class="tab-pane fade">
+                                        bbands
+                                    </div>
+                                    <div id="MACD" class="tab-pane fade">
+                                        macd
                                     </div>
                                 </div>
                             </div>

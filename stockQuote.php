@@ -21,7 +21,7 @@
         $lastPrice = +$latestRecord->{'4. close'};
         $lastOpen = +$latestRecord->{'1. open'};
         $lastVolume = number_format(+$latestRecord->{'6. volume'});
-        $daysRange = +$latestRecord->{'3. low'} . '-' . +$latestRecord->{'2. high'};
+        $daysRange = +$latestRecord->{'3. low'} . ' - ' . +$latestRecord->{'2. high'};
         # TODO: close
         
        

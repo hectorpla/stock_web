@@ -28,7 +28,7 @@ function drawTable(containerId, info) {
     var container = document.getElementById(containerId);
     var prevTables = container.getElementsByTagName('table');
     var table = document.createElement('table');
-    var heads = ['Stock Ticker', "Last Price"];
+    var heads = ["Stock Ticker", "Last Price", "Change", "TimeStamp", "Open", "Day's Range", "Volume"];
     
     console.log(prevTables);
     for (prev of prevTables) {
@@ -274,10 +274,16 @@ function plotHistChart() {
 }
 
 function plotLineChart(title, dates, seriesData) {
-    console.log(seriesData);
-    Highcharts.chart('stockChart', {
+//    console.log(title);
+//    console.log(dates);
+    console.log(JSON.stringify(seriesData));
+    var symbol = stockPlotOjbect['Stock Ticker'];
+    var acroynim = title.split(' ').slice(-1)[0].slice(1,-1);
+    
+    Highcharts.chart(acroynim.toUpperCase(), {
         chart: {
-            width: null
+            width: null,
+            zoomType: "x"
         },
         title: {
             text: title
@@ -297,7 +303,7 @@ function plotLineChart(title, dates, seriesData) {
         },
         yAxis: {
             title: {
-                text: title.split(' ').slice(-1)[0].slice(1,-1)
+                text: acroynim
             }
         },
         legend: {
@@ -314,4 +320,55 @@ function plotLineChart(title, dates, seriesData) {
         },
         series: seriesData
     });
+}
+
+function processIndicator(indicator) {
+    function plot(obj) {
+        var symbol = obj.symbol;
+        var dates = null;
+        var fullName = obj.fullIndicator;
+        var subIndicators = obj['sub-indicators'];
+        var seriesObjs = Array();
+        
+        // cache dates
+        if (stockPlotOjbect.dates === undefined) {
+            stockPlotOjbect.dates = obj.dates.slice(0, CHARTLENGTH);
+        }
+        dates = compressedDates();
+        for (subIndicator of subIndicators) {
+            console.log(obj[subIndicator])
+            seriesObjs.push({
+                name: symbol + ' ' + subIndicator,
+                data: obj[subIndicator].slice(0, CHARTLENGTH)
+            });
+        }
+        indPlotObject = {
+            fullName: fullName,
+            dates: dates,
+            seriesObjs: seriesObjs
+        };
+        plotLineChart(fullName, dates, seriesObjs);
+    }
+
+    var indicator = indicator.toUpperCase();
+    // use cached data
+    if (indPlotObjects[indicator] !== undefined) {
+        obj = indPlotObjects[indicator];
+        plotLineChart(obj.fullName, stockPlotOjbect.dates, obj.seriesObjs);
+        return;
+    }
+    
+    var xhr = new XMLHttpRequest();
+    var URL = "indicatorQuery.php?indicator=" + indicator + '&' + "symbol=" + stockPlotOjbect['Stock Ticker'];
+    console.log(URL);
+    xhr.open("GET", URL, true);
+    xhr.onreadystatechange = function () {
+        if(this.readyState === XMLHttpRequest.DONE && this.status === 200) {
+            var string = xhr.responseText;
+            var obj = JSON.parse(string);
+            console.log(obj);
+            plot(obj);
+        }
+    };
+    xhr.send();
 }

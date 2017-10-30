@@ -13,24 +13,32 @@
         
         $meta_data = $obj->{'Meta Data'};
         $lastDate = $meta_data->{'3: Last Refreshed'};
+        $symbol = $meta_data->{"1: Symbol"};
+        $fullIndicator = $meta_data->{"2: Indicator"};
         
         $series = $obj->{'Technical Analysis: ' . strtoupper($indicator)};
-//        var_dump($series);
         
-        $subtitles = array_keys((array)($series->$lastDate));
+        $subindicators = array_keys((array)($series->$lastDate));
+//        var_dump($subindicators);
+        
+        $dates = array();
         $records = array();
         
-//        var_dump($subtitles);
-        
+        foreach ($subindicators as $subindicator) {
+            $records[$subindicator] = array();
+        }
+
         date_default_timezone_set('America/New_York');
         foreach ($series as $date => $record) {
-            $dataTuple = array(strtotime($date));
-            foreach ($subtitles as $subtitle) {
-                array_push($dataTuple, +$record->$subtitle);
+            array_push($dates, $date);
+            foreach ($subindicators as $subindicator) {
+                array_push($records[$subindicator], +$record->$subindicator);
             }
-            array_push($records, $dataTuple);
         }
-        $wrap = array('sub-indicators' => $subtitles, 'data' => $records);
+        $wrap = array('symbol' => $symbol, 'fullIndicator' => $fullIndicator, 'sub-indicators' => $subindicators, 'dates' => $dates);
+        foreach ($subindicators as $subindicator) {
+            $wrap[$subindicator] = $records[$subindicator];
+        }
         $objr = json_encode($wrap, JSON_PRETTY_PRINT);
         echo $objr;
     }
