@@ -26,6 +26,12 @@ div.well {
     background-color: white;
 }
 
+div.newsitem {
+    background-color: rgb(238,238,238);
+    margin-left: 6px;
+    margin-right: 6px;
+}
+
 br {
     margin-top: 20px;
     margin-bottom: 20px;

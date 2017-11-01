@@ -20,7 +20,7 @@
 <div class="center">
     <div class="container-fluid well">
         <div class="col-sm-3"> Enter Stock Ticker Symbol <b>*</b> </div>
-        <div class="col-sm-6" ng-controller="myCtrl as ctrl" layout="column" ng-cloak="" class="autocompletedemoBasicUsage" ng-app="MyApp">
+        <div class="col-sm-6" ng-controller="myCtrl as ctrl" layout="column" ng-cloak="" class="autocompletedemoBasicUsage" ng-app="autocompleteApp">
 <!--
             <pre>$error = {{ searchForm.autocompleteField.$error | json }}
             </pre>
@@ -64,10 +64,12 @@
     </div>
     <br>
     
-    <div class="container-fluid well tab-content">
-            <!--   add to class in active   -->
+
+    <div id="stockframe" ng-controller="dispCtrl as ctrl" layout="column" ng-cloak="" ng-app="stockApp">
+<!--    </div>-->
+        <div class="container-fluid well tab-content">
             <div id="favlist" class="tab-pane fade panel panel-default">
-                <!--      TODO:       -->
+                <!--      TODO: add animation     -->
                 <div class="panel-heading"> Favorite List
                     <input type="checkbox" data-toggle="toggle">
                     <button type="button" class="btn btn-default">
@@ -93,7 +95,7 @@
                         <ul class="nav nav-pills row">
                             <li class="active"><a data-toggle="tab" href="#curstock">Current Stock</a></li>
                             <li onclick="plotHistChart()"><a data-toggle="tab" href="#histchart">Historical Charts</a></li>
-                            <li><a data-toggle="tab" href="#newsfeed">News Feeds</a></li>
+                            <li><a data-toggle="tab" href="#newsfeed" ng-click="ctrl.getNewsFeeds()">News Feeds</a></li>
                         </ul>
                         </div>
                     </div>
@@ -154,33 +156,41 @@
                         </div>
                         <div id="newsfeed" class="tab-pane fade">
                             newsfeed
+                            <div>
+                                <div ng-repeat="item in ctrl.news" class="well newsitem">
+                                    <a href="{{item.link}}" target="_blank">
+                                        <h4>{{item.title}} </h4>
+                                    </a>
+                                    <p> {{item.author}} </p>
+                                    <p> {{item.pubDate}} </p>
+                                </div>
+                            </div>
                         </div>
                     </div>
                 </div>
             </div>
+        </div>
     </div>
-    
-    <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.5.5/angular.min.js"></script>
-    <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.5.5/angular-animate.min.js"></script>
-    <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.5.5/angular-aria.min.js"></script>
-    <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.5.5/angular-messages.min.js"></script>
-
-    <!-- Angular Material Library -->
-    <script src="https://ajax.googleapis.com/ajax/libs/angular_material/1.1.4/angular-material.min.js"></script>
-    <script src="http://ngmaterial.assets.s3.amazonaws.com/svg-assets-cache.js"></script>
-    <script src="https://gitcdn.github.io/bootstrap-toggle/2.2.2/js/bootstrap-toggle.min.js"></script>
-    
-    <!-- Highcharts -->
-<!--
-    <script src="https://code.highcharts.com/highcharts.js"></script>
-	<script src="https://code.highcharts.com/modules/exporting.js"></script>
--->
-    <script src="https://code.highcharts.com/stock/highstock.js"></script>
-    <script src="https://code.highcharts.com/stock/modules/exporting.js"></script>
-    
-    <!-- self part -->
-    <script src="./autocompleteModule.js"></script>
-    <script src="./stockinfo.js"></script>
 </div>
+    
+<script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.5.5/angular.min.js"></script>
+<script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.5.5/angular-animate.min.js"></script>
+<script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.5.5/angular-aria.min.js"></script>
+<script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.5.5/angular-messages.min.js"></script>
+
+<!-- Angular Material Library -->
+<script src="https://ajax.googleapis.com/ajax/libs/angular_material/1.1.4/angular-material.min.js"></script>
+<script src="http://ngmaterial.assets.s3.amazonaws.com/svg-assets-cache.js"></script>
+<script src="https://gitcdn.github.io/bootstrap-toggle/2.2.2/js/bootstrap-toggle.min.js"></script>
+
+<!-- Highcharts -->
+<script src="https://code.highcharts.com/stock/highstock.js"></script>
+<script src="https://code.highcharts.com/stock/modules/exporting.js"></script>
+
+<!-- self part -->
+<script src="./autocompleteModule.js"></script>
+<script src="./stockinfo.js"></script>
+<script src="./displayModule.js"></script>
+
 </body>
 </html>
