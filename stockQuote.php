@@ -1,7 +1,7 @@
 <?php
     if(isset($_GET)) {        
         $symbol = $_GET['symbol'];
-        $query_url = "https://www.alphavantage.co/query?function=TIME_SERIES_DAILY_ADJUSTED&outputsize=compact&symbol={$symbol}&apikey=XJPOXPVZNXYML3L2";
+        $query_url = "https://www.alphavantage.co/query?function=TIME_SERIES_DAILY_ADJUSTED&outputsize=full&symbol={$symbol}&apikey=XJPOXPVZNXYML3L2";
         $content = file_get_contents($query_url);
         $obj = json_decode($content);
         
