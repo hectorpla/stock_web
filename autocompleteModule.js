@@ -1,9 +1,9 @@
-var selectedText;
+selectedText = null;
 
 (function () {
     'use strict';
     var app = angular.module('autocompleteApp', ['ngMessages', 'ngMaterial', 'material.svgAssetsCache']);
-    app.controller('myCtrl', function($http, $log) {
+    app.controller('myCtrl', function($http, $window, $log) {
         var self = this;
         self.searchQuery = searchQuery;
         self.selectedItemChange = selectedItemChange;
@@ -29,19 +29,21 @@ var selectedText;
             $log.info('Item changed to ' + JSON.stringify(item));
     //        console.log(item);
             if (item.sym !== undefined) {
-                selectedText = item.sym;
+//                selectedText = item.sym;
                 self.searchText = item.sym;
+                $window.selectedText = item.sym;
+                $log.info('global searchText changed to ' + $window.selectedText);
+                
             }
     //        $log.info(self.searchText);
         }
 
         function searchTextChange(text) {
             $log.info('Text changed to ' + text);
-            selectedText = text;
+            $window.selectedText = text;
         }
 
         function showStockInfo(searchText) {
-            console.log('aaa');
             $log.info('search symbol ' + searchText);
             return searchText;
         }

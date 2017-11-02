@@ -2,11 +2,13 @@
     'use strict';
     var app = angular.module('stockApp', ['ngMessages', 'ngMaterial', 'material.svgAssetsCache']);
     
-    app.controller('dispCtrl', function($http, $log) {
+    app.controller('dispCtrl', function($http, $window, $log) {
         var self = this;
+        
+        self.favDetToggle = false;
         self.getNewsFeeds = getNewsFeeds;
-        self.loadNews = loadNews;
         self.news = [];
+        self.stockObj = $window.stockPlotOjbect; // risky?
         
         function loadNews(data) {
 //            console.log(Array.isArray(data));
@@ -23,9 +25,14 @@
             return $http.get('newsfeed.php?symbol=' + selectedText)
             .then(function(obj){
                 $log.info(obj.data);
-                self.loadNews(obj.data);
+                loadNews(obj.data);
                 return obj.data;
             });
+        }
+        
+        function checkDetailsAvail() {
+            $log.info('check detail: symbol' + $window.selectedText);
+            return $window.stockPlotOjbect !== null;
         }
     });
     // bad practice, couple html and js
