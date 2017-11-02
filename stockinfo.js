@@ -26,14 +26,9 @@ function createRow(header, data, imgSrc=null) {
 
 function drawTable(containerId, info) {
     var container = document.getElementById(containerId);
-    var prevTables = container.getElementsByTagName('table');
     var table = document.createElement('table');
     var heads = ["Stock Ticker", "Last Price", "Change", "TimeStamp", "Open", "Day's Range", "Volume"];
     
-    console.log(prevTables);
-    for (prev of prevTables) {
-        container.removeChild(prev);
-    }
     for (head of heads) {
         table.appendChild(createRow(head, info[head]));
     }
@@ -45,26 +40,29 @@ function drawStockChart(symbol, data) {
     
 }
 
-function showProgressBar(container) {
-    var container = document.getElementById(container);
+function appendProgressBar(container) {
     var prog = document.createElement('div');
     var progbar = document.createElement('div');
     
-    prog.class = 'progress';
-    progbar.class = "progress-bar progress-bar-striped active";
-    progbar.role = "progressbar";
-    progbar['aria-valuenow'] = "50";
-    progbar.style="width:50%";
+    prog.className = 'progress';
+    progbar.className = "progress-bar progress-bar-striped active";
+    progbar.setAttribute("role", "progressbar");
+    progbar.setAttribute("aria-valuenow", "50");
+    progbar.setAttribute("style", "width:50%");
+    prog.appendChild(progbar);
+    container.appendChild(prog);
+    console.log(prog);
 }
 
 function showProgress(container) {
-    progdiv = container.getElementsByClassName('progress')[0];
-    console.log(progdiv);
-    progdiv.style.display = "inline";
+    while (container.firstChild) {
+        container.removeChild(container.firstChild);
+    }
+    appendProgressBar(container);
 }
 
 function dismissProgress(container) {
-    progdiv = container.getElementsByClassName('progress')[0];
+    var progdiv = container.getElementsByClassName('progress')[0];
     progdiv.style.display = "none";
 }
 
@@ -74,8 +72,8 @@ function showStockDetails(symbol, table, chart) {
     var xhr = new XMLHttpRequest();
     var URL = "stockQuote.php?symbol=" + symbol;
     
-    console.log(tabcontainer.childNodes);
     showProgress(tabcontainer);
+    showProgress(chartcontainer);
     
     console.log(URL);
     xhr.open("GET", URL, true);
@@ -84,7 +82,6 @@ function showStockDetails(symbol, table, chart) {
             var string = xhr.responseText;
             var obj = JSON.parse(string);
             console.log(obj);
-            progdiv.style.display = "none";
             dismissProgress(tabcontainer);
             stockPlotOjbect = obj;
             drawTable(table, obj);
@@ -276,7 +273,7 @@ function plotHistChart() {
 function plotLineChart(title, dates, seriesData) {
 //    console.log(title);
 //    console.log(dates);
-    console.log(JSON.stringify(seriesData));
+//    console.log(JSON.stringify(seriesData));
     var symbol = stockPlotOjbect['Stock Ticker'];
     var acroynim = title.split(' ').slice(-1)[0].slice(1,-1);
     
@@ -323,6 +320,7 @@ function plotLineChart(title, dates, seriesData) {
 }
 
 function processIndicator(indicator) {
+    var indicator = indicator.toUpperCase();
     function plot(obj) {
         var symbol = obj.symbol;
         var dates = null;
@@ -336,7 +334,7 @@ function processIndicator(indicator) {
         }
         dates = compressedDates();
         for (subIndicator of subIndicators) {
-            console.log(obj[subIndicator])
+//            console.log(obj[subIndicator])
             seriesObjs.push({
                 name: symbol + ' ' + subIndicator,
                 data: obj[subIndicator].slice(0, CHARTLENGTH)
@@ -347,16 +345,21 @@ function processIndicator(indicator) {
             dates: dates,
             seriesObjs: seriesObjs
         };
+        indPlotObjects[indicator] = indPlotObject;
         plotLineChart(fullName, dates, seriesObjs);
     }
 
     var indicator = indicator.toUpperCase();
+    console.log(indPlotObjects);
     // use cached data
     if (indPlotObjects[indicator] !== undefined) {
         obj = indPlotObjects[indicator];
         plotLineChart(obj.fullName, stockPlotOjbect.dates, obj.seriesObjs);
         return;
     }
+    
+    var drawbox = document.getElementById(indicator);
+    showProgress(drawbox);
     
     var xhr = new XMLHttpRequest();
     var URL = "indicatorQuery.php?indicator=" + indicator + '&' + "symbol=" + stockPlotOjbect['Stock Ticker'];
@@ -367,6 +370,7 @@ function processIndicator(indicator) {
             var string = xhr.responseText;
             var obj = JSON.parse(string);
             console.log(obj);
+            dismissProgress(drawbox);
             plot(obj);
         }
     };

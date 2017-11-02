@@ -7,11 +7,9 @@ body {
     border: 5px sold #ffdddd;
 }
 
-/*
-div {
-    margin: 0 auto;
+tr:nth-child(even) {
+    background-color: #dddddd;
 }
-*/
 
 div.center {
     width: 80%;

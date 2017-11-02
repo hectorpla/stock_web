@@ -7,6 +7,7 @@
         
         var self = this;
         
+        self.plotObj = $window.stockPlotOjbect;
         // auto-complete
         self.searchQuery = searchQuery;
         self.selectedItemChange = selectedItemChange;
@@ -17,13 +18,14 @@
         self.getQuote = getQuote;
         
         // display
+        self.detailDisabled = true;
         self.favDetToggle = false;
         self.getNewsFeeds = getNewsFeeds;
         self.news = [];
         
         
         function searchQuery(query) {
-                if (query === '') { query = 'a'; }
+                if (query === '') { return []; }
                 // make the input Red if all spaces
                 return $http.get('autocomplete.php?search=' + query)
                 .then(function(obj){
@@ -43,8 +45,8 @@
                 self.searchText = item.sym;
                 $window.selectedText = item.sym;
                 $log.info('global searchText changed to ' + $window.selectedText);
-                
             }
+            return;
         }
 
         function searchTextChange(text) {
@@ -64,6 +66,7 @@
         function getQuote() {
             $log.info('GET QUOTE executes: ' + self.searchText);
             $window.showStockDetails(self.searchText, 'infotab', 'stockchart');
+            self.detailDisabled = false;
             self.favDetToggle = true;
         }
         
@@ -91,7 +94,5 @@
             return $window.stockPlotOjbect !== null;
         }
     });
-    // bad practice, couple html and js
-//    angular.bootstrap(document.getElementById("stockframe"), ['stockApp']);
     console.log('Stock App loaded');
 })();
