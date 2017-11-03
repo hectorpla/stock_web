@@ -2,13 +2,21 @@ body {
     background-image: url("http://cs-server.usc.edu:45678/hw/hw8/images/background.png")
 }
 
-
 :invalid, :required {
     border: 5px sold #ffdddd;
 }
 
-tr:nth-child(even) {
+tr {
+
+    width: 100%;
+}
+
+tr:nth-child(odd) {
     background-color: #dddddd;
+}
+
+div {
+    /*margin: 5px 0 0 5px;*/
 }
 
 div.center {
@@ -33,6 +41,7 @@ div.newsitem {
 br {
     margin-top: 20px;
     margin-bottom: 20px;
+
 }
 
 .slide-left, .slide-right {
@@ -55,6 +64,20 @@ br {
     -o-transition:all cubic-bezier(0.250, 0.460, 0.450, 0.940) 1s;
     transition:all cubic-bezier(0.250, 0.460, 0.450, 0.940) 1s;
 /*    transition: all linear 0.8s;*/
+}
+
+.yellow {
+    color: #eddb00;
+}
+
+.button-img {
+    max-height: 80%;
+    max-width: 80%;
+    width: 25px;
+}
+
+.float-right {
+    float: right;
 }
 
 

@@ -65,8 +65,9 @@
         */
         function getQuote() {
             $log.info('GET QUOTE executes: ' + self.searchText);
+            // TODO: clean-up previous display
             $window.showStockDetails(self.searchText, 'infotab', 'stockchart');
-            self.detailDisabled = false;
+            self.detailDisabled = false; // not good
             self.favDetToggle = true;
         }
         

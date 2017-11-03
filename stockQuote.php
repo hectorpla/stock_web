@@ -37,10 +37,11 @@
             array_push($volumes, +$record->{'6. volume'});
         }
         
-        $change = round(($prices[0] - $prices[1]) / $prices[1], 2);
-
+        $change = $prices[0] - $prices[1];
+        $changePer = round($change / $prices[1], 2);
+        $changeStr = $change . ' (' . $changePer . ')';
         
-        $wrap = array("Stock Ticker" => $symbol, "Last Price" => $lastPrice, "Open" => $lastOpen, 'TimeStamp' => $timeStamp, "Day's Range" => $daysRange, "Volume" => $lastVolume, "Change" => $change, 'dates' => $dates, 'prices' => $prices, 'volumes' => $volumes);
+        $wrap = array("Stock Ticker" => $symbol, "Last Price" => $lastPrice, "Open" => $lastOpen, 'TimeStamp' => $timeStamp, "Day's Range" => $daysRange, "Volume" => $lastVolume, "Change" => $changeStr, 'dates' => $dates, 'prices' => $prices, 'volumes' => $volumes);
         $obj = json_encode($wrap, JSON_PRETTY_PRINT);
         echo $obj;
     }

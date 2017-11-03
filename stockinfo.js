@@ -36,9 +36,6 @@ function drawTable(containerId, info) {
     console.log('table trawn!');
 }
 
-function drawStockChart(symbol, data) {
-    
-}
 
 function appendProgressBar(container) {
     var prog = document.createElement('div');
@@ -123,7 +120,7 @@ function plotStockPrice() {
     Highcharts.chart('stockchart', {
         chart: {
             zoomType: 'x',
-            marginTop: 20,
+            marginTop: 60,
         },
         title: {
             text: 'Stock Price(' + lastDate + '/' + YEAR + ')'
@@ -139,7 +136,7 @@ function plotStockPrice() {
             reversed: true,
             labels: {
                 step: 5,
-                rotation: -30
+                rotation: -60
             }
         },
         yAxis: [
@@ -163,9 +160,9 @@ function plotStockPrice() {
             shared: false
         },
         legend: {
-            layout: 'vertical',
-            align: 'right',
-            verticalAlign: 'middle'
+            layout: 'horizontal',
+            align: 'center',
+            verticalAlign: 'bottom'
         },
         plotOptions: {
             area: {
@@ -295,7 +292,7 @@ function plotLineChart(title, dates, seriesData) {
             reversed: true, // reverse the x-aix
             labels: {
                 step: 5,
-                rotation: -30
+                rotation: -60
             }
         },
         yAxis: {
@@ -304,9 +301,9 @@ function plotLineChart(title, dates, seriesData) {
             }
         },
         legend: {
-            layout: 'vertical',
-            align: 'right',
-            verticalAlign: 'middle'
+            layout: 'horizontal',
+            align: 'middle',
+            verticalAlign: 'bottom'
         },
         plotOptions: {
             series: {
@@ -354,7 +351,7 @@ function processIndicator(indicator) {
     // use cached data
     if (indPlotObjects[indicator] !== undefined) {
         obj = indPlotObjects[indicator];
-        plotLineChart(obj.fullName, stockPlotOjbect.dates, obj.seriesObjs);
+        plotLineChart(obj.fullName, compressedDates(), obj.seriesObjs);
         return;
     }
     
