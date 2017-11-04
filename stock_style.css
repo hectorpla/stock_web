@@ -80,4 +80,7 @@ br {
     float: right;
 }
 
+.progress-bar-striped {
+    width: 50%;
+}
 

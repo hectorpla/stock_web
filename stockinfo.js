@@ -36,56 +36,11 @@ function drawTable(containerId, info) {
     console.log('table trawn!');
 }
 
-
-function appendProgressBar(container) {
-    var prog = document.createElement('div');
-    var progbar = document.createElement('div');
-    
-    prog.className = 'progress';
-    progbar.className = "progress-bar progress-bar-striped active";
-    progbar.setAttribute("role", "progressbar");
-    progbar.setAttribute("aria-valuenow", "50");
-    progbar.setAttribute("style", "width:50%");
-    prog.appendChild(progbar);
-    container.appendChild(prog);
-    console.log(prog);
-}
-
-function showProgress(container) {
-    while (container.firstChild) {
-        container.removeChild(container.firstChild);
-    }
-    appendProgressBar(container);
-}
-
-function dismissProgress(container) {
-    var progdiv = container.getElementsByClassName('progress')[0];
-    progdiv.style.display = "none";
-}
-
-function showStockDetails(symbol, table, chart) {
-    var tabcontainer = document.getElementById(table);
-    var chartcontainer = document.getElementById(chart);
-    var xhr = new XMLHttpRequest();
-    var URL = "stockQuote.php?symbol=" + symbol;
-    
-    showProgress(tabcontainer);
-    showProgress(chartcontainer);
-    
-    console.log(URL);
-    xhr.open("GET", URL, true);
-    xhr.onreadystatechange = function () {
-        if(this.readyState === XMLHttpRequest.DONE && this.status === 200) {
-            var string = xhr.responseText;
-            var obj = JSON.parse(string);
-            console.log(obj);
-            dismissProgress(tabcontainer);
-            stockPlotOjbect = obj;
-            drawTable(table, obj);
-            plotStockPrice();
-        }
-    };
-    xhr.send();
+function showStockDetails(obj, table, chart) {
+    console.log(obj);
+    stockPlotOjbect = obj;
+    drawTable(table, obj);
+    plotStockPrice();
 }
 
 function zip(arr1, arr2) {
@@ -106,16 +61,16 @@ function compressedDates() {
 }
 
 function plotStockPrice() {
+    var YEAR = stockPlotOjbect.dates[0].slice(0, 4);
     var dates = compressedDates();
     var prices = stockPlotOjbect.prices.slice(0, CHARTLENGTH);
     var volumes = stockPlotOjbect.volumes.slice(0, CHARTLENGTH);
     console.log(dates);
 
     var SYMBOL = stockPlotOjbect['Stock Ticker'];
-    var YEAR = dates[dates.length - 1].slice(0, 4);
     var maxVolume = Math.max.apply(null, volumes);
     var maxPrice = Math.max.apply(null, prices);
-    var lastDate = dates[dates.length - 1].replace(/-/, '/');
+    var lastDate = dates[0].replace(/-/, '/');
     
     Highcharts.chart('stockchart', {
         chart: {
@@ -191,7 +146,7 @@ function plotStockPrice() {
             name: SYMBOL + ' Volume',
             data: volumes,
             color: 'red',
-            maxPointWidth: 3
+            maxPointWidth: 5
         }]
     });
 }
@@ -302,7 +257,7 @@ function plotLineChart(title, dates, seriesData) {
         },
         legend: {
             layout: 'horizontal',
-            align: 'middle',
+            align: 'center',
             verticalAlign: 'bottom'
         },
         plotOptions: {

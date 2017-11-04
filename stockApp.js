@@ -3,7 +3,7 @@
     var app = angular.module('stockApp', ['ngMessages', 'ngMaterial', 'material.svgAssetsCache']);
     
     app.controller('myCtrl', function($http, $window, $log) {
-        console.log($window);
+//        console.log($window);
         
         var self = this;
         
@@ -22,7 +22,16 @@
         self.favDetToggle = false;
         self.getNewsFeeds = getNewsFeeds;
         self.news = [];
-        
+        self.progressShow = {
+            infotab: false,
+            stockchart: false
+        }
+        self.alertMessageShow = {
+            infotab: false,
+            stockchart: false
+            
+        };
+
         
         function searchQuery(query) {
                 if (query === '') { return []; }
@@ -66,9 +75,27 @@
         function getQuote() {
             $log.info('GET QUOTE executes: ' + self.searchText);
             // TODO: clean-up previous display
-            $window.showStockDetails(self.searchText, 'infotab', 'stockchart');
-            self.detailDisabled = false; // not good
             self.favDetToggle = true;
+            self.progressShow.infotab = true;
+            self.progressShow.stockchart = true;
+            $http.get("stockQuote.php?symbol=" + self.searchText)
+            .then(function(response) {
+                self.progressShow.infotab = false;
+                self.progressShow.stockchart = false;
+                self.alertMessageShow.infotab = false;
+                self.alertMessageShow.stockchart = false;
+                self.detailDisabled = false;
+                $window.showStockDetails(response.data, 'infotab', 'stockchart');
+            },
+                function(obj) {
+                    // error callback
+                $log.info('error call-back!');
+                self.alertMessageShow.infotab = true;
+                self.alertMessageShow.stockchart = true;
+                self.progressShow.infotab = false;
+                self.progressShow.stockchart = false;
+                $log.info(self.alertMessageShow);
+            });
         }
         
         function loadNews(data) {
@@ -94,6 +121,8 @@
             $log.info('check detail: symbol' + $window.selectedText);
             return $window.stockPlotOjbect !== null;
         }
+        
+        
     });
     console.log('Stock App loaded');
 })();
