@@ -1,7 +1,11 @@
 <?php
     if(isset($_GET)) {        
         $symbol = $_GET['symbol'];
+        $isRealtime = isset($_GET['realtime']);
         $query_url = "https://www.alphavantage.co/query?function=TIME_SERIES_DAILY_ADJUSTED&outputsize=compact&symbol={$symbol}&apikey=XJPOXPVZNXYML3L2";
+        if ($isRealtime) {
+            $query_url = "https://www.alphavantage.co/query?function=TIME_SERIES_INTRADAY&interval=1min&symbol={$symbol}&apikey=XJPOXPVZNXYML3L2";
+        }
         $content = file_get_contents($query_url);
         $obj = json_decode($content);
         
@@ -13,15 +17,21 @@
         
         $meta_data = $obj->{'Meta Data'};
         $time_series = $obj->{'Time Series (Daily)'};
-        
         $timeStamp = $meta_data->{'3. Last Refreshed'};
         # doubtable
         $latestRecord = $time_series->{explode(" ", $timeStamp)[0]};
+        $volumeFieldName = '6. volume';
+        if ($isRealtime) {
+            # some different fields for realtime data
+            $time_series = $obj->{'Time Series (1min)'};
+            $latestRecord = $time_series->$timeStamp;
+            $volumeFieldName = '5. volume';
+        }
         
         $symbol = $meta_data->{'2. Symbol'};
         $lastPrice = +$latestRecord->{'4. close'};
         $lastOpen = +$latestRecord->{'1. open'};
-        $lastVolume = number_format(+$latestRecord->{'6. volume'});
+        $lastVolume = number_format(+$latestRecord->{$volumeFieldName});
         $daysRange = +$latestRecord->{'3. low'} . ' - ' . +$latestRecord->{'2. high'};
         # TODO: close
         
@@ -34,18 +44,18 @@
         foreach ($time_series as $date => $record) {
             array_push($dates, $date);
             array_push($prices, +$record->{'4. close'});
-            array_push($volumes, +$record->{'6. volume'});
+            array_push($volumes, +$record->{$volumeFieldName});
         }
         
         $change = $prices[0] - $prices[1];
-        $changePer = round($change / $prices[1], 2);
-        $changeStr = $change . ' (' . $changePer . ')';
+        $changePer = round($change / $prices[1] * 100, 2) . '%';
+        $changeStr = round($change, 2) . ' (' . $changePer . ')';
         
-        $wrap = array("Stock Ticker" => $symbol, "Last Price" => $lastPrice, "Open" => $lastOpen, 'TimeStamp' => $timeStamp, "Day's Range" => $daysRange, "Volume" => $lastVolume, "Change" => $changeStr, 'dates' => $dates, 'prices' => $prices, 'volumes' => $volumes);
+        $wrap = array("Stock Ticker" => $symbol, "Last Price" => $lastPrice, "Open" => $lastOpen, 'TimeStamp' => $timeStamp, "Day's Range" => $daysRange, "Volume" => $lastVolume, "Change" => $changeStr, 'dates' => $dates, 'prices' => $prices, 'volumes' => $volumes, 'change' => $change, 'changePer' => $changePer);
         $obj = json_encode($wrap, JSON_PRETTY_PRINT);
         echo $obj;
     }
     else {
-        echo json_encode(array('error' => 'only suport GET operation.'));
+        header("HTTP/1.0 404 only support get method");
     }
 ?>

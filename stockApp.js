@@ -3,8 +3,6 @@
     var app = angular.module('stockApp', ['ngMessages', 'ngMaterial', 'material.svgAssetsCache']);
     
     app.controller('myCtrl', function($http, $window, $log) {
-//        console.log($window);
-        
         var self = this;
         
         self.plotObj = $window.stockPlotOjbect;
@@ -20,32 +18,45 @@
         // display
         self.detailDisabled = true;
         self.favDetToggle = false;
-        self.getNewsFeeds = getNewsFeeds;
-        self.news = [];
         self.progressShow = {
-            infotab: false,
-            stockchart: false
+            infotab: true,
+            Price: true,
+            histchart: true,
+            newsfeed: true
         }
         self.alertMessageShow = {
             infotab: false,
-            stockchart: false
-            
+            Price: false,
+            histchart: false,
+            newsfeed: false
         };
+        self.news = [];
+        self.table = [];
 
-        
+        self.getHistChart = getHistChart;
+        self.getNewsFeeds = getNewsFeeds;
+        self.tabFields = ["Stock Ticker", "Last Price", "Change", "TimeStamp", "Open", "Day's Range", "Volume"];
+        self.indicators = ['SMA', 'EMA', 'STOCH', 'RSI', 'ADX', 'CCI', 'BBANDS', 'MACD'];
+        self.loadIndicator = loadIndicator;
+
+        for (const indicator of self.indicators) {
+            self.progressShow[indicator] = true;
+            self.alertMessageShow[indicator] = false;
+        }
+
         function searchQuery(query) {
-                if (query === '') { return []; }
-                // make the input Red if all spaces
-                return $http.get('autocomplete.php?search=' + query)
-                .then(function(obj){
-                    if (!(obj.data instanceof Array)) { return []; }
-                    return obj.data.map(function(record) {
-                        return {
-                            sym: record.Symbol,
-                            display: record.Symbol + ' - ' + record.Name + ' (' + record.Exchange + ')'
-                        };
-                    });
+            if (query === '') { return []; }
+            // make the input Red if all spaces
+            return $http.get('autocomplete.php?search=' + query)
+            .then(function(obj){
+                if (!(obj.data instanceof Array)) { return []; }
+                return obj.data.map(function(record) {
+                    return {
+                        sym: record.Symbol,
+                        display: record.Symbol + ' - ' + record.Name + ' (' + record.Exchange + ')'
+                    };
                 });
+            });
         }
 
         function selectedItemChange(item) {
@@ -69,33 +80,88 @@
         }
         
         
+        function dismissProgress(block) {
+            self.progressShow[block] = false;
+            self.alertMessageShow[block] = false;
+        }
+        function showAlert(block) {
+            self.progressShow[block] = false;
+            self.alertMessageShow[block] = true;
+        }
         /*
         * lazy evaluation, only update the stock chart
         */
+        function cleanup() {
+            $window.resetActiveTab();
+            $window.initCache();
+            // set all progress to true
+            for (var block in self.progressShow) {
+                self.alertMessageShow[block] = false;
+                self.progressShow[block] = true;
+                self.table = [];
+            }
+        }
+        
+        function setInfoTable(obj) {
+            self.table = self.tabFields.map(function(head) {
+                    return {head: head, data: obj[head]}
+                });
+        }
+
         function getQuote() {
             $log.info('GET QUOTE executes: ' + self.searchText);
             // TODO: clean-up previous display
+            cleanup();
             self.favDetToggle = true;
-            self.progressShow.infotab = true;
-            self.progressShow.stockchart = true;
             $http.get("stockQuote.php?symbol=" + self.searchText)
             .then(function(response) {
-                self.progressShow.infotab = false;
-                self.progressShow.stockchart = false;
-                self.alertMessageShow.infotab = false;
-                self.alertMessageShow.stockchart = false;
                 self.detailDisabled = false;
-                $window.showStockDetails(response.data, 'infotab', 'stockchart');
+                dismissProgress('infotab');
+                dismissProgress('Price');
+                
+                setInfoTable(response.data);
+                $window.stockPlotOjbect = response.data;
+                $window.plotStockPrice();
+                // $window.showStockDetails(response.data);
             },
-                function(obj) {
-                    // error callback
+                function(response) {
+                // error callback
                 $log.info('error call-back!');
-                self.alertMessageShow.infotab = true;
-                self.alertMessageShow.stockchart = true;
-                self.progressShow.infotab = false;
-                self.progressShow.stockchart = false;
-                $log.info(self.alertMessageShow);
+                showAlert('infotab');
+                showAlert('Price');
+                $window.stockPlotOjbect = null;
             });
+        }
+        
+        function loadIndicator(indicator) {
+            if ($window.stockPlotOjbect === null) { // check validility first
+                dismissProgress(indicator);
+                showAlert(indicator);
+                return;
+            }
+            if (indicator === 'Price') { return; }
+            if (!self.alertMessageShow[indicator] && !self.progressShow[indicator]) {
+                console.log('loadIndicator: already loaded');
+                return;
+            }
+            console.log('processing ' + indicator);
+            $http.get("indicatorQuery.php?indicator=" + indicator + '&' + "symbol=" + $window.stockPlotOjbect['Stock Ticker'])
+            .then(function(response) {
+                dismissProgress(indicator);
+                $log.info(response.data);
+                $window.processIndicator(indicator, response.data);
+            },
+                function(response) {
+                showAlert(indicator);
+            });
+        }
+
+        function getHistChart() {
+            if (!$window.stockPlotOjbect) {
+                showAlert('histchart');
+                return;
+            }
+            $window.plotHistChart();
         }
         
         function loadNews(data) {
@@ -107,8 +173,10 @@
         }
         
         function getNewsFeeds() {
-            // selectedText is a global variable
-            if (selectedText == null) return;
+            if (!$window.stockPlotOjbect) {
+                showAlert('newsfeed');
+                return;
+            }
             return $http.get('newsfeed.php?symbol=' + selectedText)
             .then(function(obj){
                 $log.info(obj.data);

@@ -7,39 +7,44 @@ initCache();
 
 var CHARTLENGTH = 100;
 
-function createRow(header, data, imgSrc=null) {
-        var row = document.createElement('tr');
-        var head = document.createElement('th');
-        var cell = document.createElement('td');
 
-        head.appendChild(document.createTextNode(header));
-        cell.appendChild(document.createTextNode(data));
-        if (imgSrc) {
-            var img = document.createElement('img');
-            img.setAttribute('src', imgSrc);
-            data.appendChild(img);
+function resetActiveTab() {
+    function reset(containerClassName, classes, 
+                    firstValidChild) {
+        var containers = document.getElementsByClassName(containerClassName);
+        for (let container of containers) {
+    //        console.log(container);
+    //        console.log(container.childNodes);
+            for (let child of container.childNodes) {
+                if (child.classList === undefined) {
+                    continue;
+                }
+
+                for (const cl of classes) {
+                    child.classList.remove(cl);
+                }
+            }
+            var first = firstValidChild(container);
+            if (!first) { continue; }
+            for (const cl of classes) {
+                first.classList.add(cl);
+            }
         }
-        row.appendChild(head);
-        row.appendChild(cell);
-        return row;
-}
-
-function drawTable(containerId, info) {
-    var container = document.getElementById(containerId);
-    var table = document.createElement('table');
-    var heads = ["Stock Ticker", "Last Price", "Change", "TimeStamp", "Open", "Day's Range", "Volume"];
-    
-    for (head of heads) {
-        table.appendChild(createRow(head, info[head]));
     }
-    container.appendChild(table);
-    console.log('table trawn!');
+
+    reset('tab-content', ['in', 'active'], function (container) { 
+        return container.getElementsByClassName('tab-pane')[0];
+    });
+    
+    reset('nav', ['active'], function (container) {
+        return container.getElementsByTagName('li')[0];
+    });
 }
 
-function showStockDetails(obj, table, chart) {
+function showStockDetails(obj) {
     console.log(obj);
     stockPlotOjbect = obj;
-    drawTable(table, obj);
+    drawTable();
     plotStockPrice();
 }
 
@@ -72,7 +77,7 @@ function plotStockPrice() {
     var maxPrice = Math.max.apply(null, prices);
     var lastDate = dates[0].replace(/-/, '/');
     
-    Highcharts.chart('stockchart', {
+    Highcharts.chart('Price', {
         chart: {
             zoomType: 'x',
             marginTop: 60,
@@ -271,7 +276,7 @@ function plotLineChart(title, dates, seriesData) {
     });
 }
 
-function processIndicator(indicator) {
+function processIndicator(indicator, obj) {
     var indicator = indicator.toUpperCase();
     function plot(obj) {
         var symbol = obj.symbol;
@@ -286,7 +291,6 @@ function processIndicator(indicator) {
         }
         dates = compressedDates();
         for (subIndicator of subIndicators) {
-//            console.log(obj[subIndicator])
             seriesObjs.push({
                 name: symbol + ' ' + subIndicator,
                 data: obj[subIndicator].slice(0, CHARTLENGTH)
@@ -310,21 +314,5 @@ function processIndicator(indicator) {
         return;
     }
     
-    var drawbox = document.getElementById(indicator);
-    showProgress(drawbox);
-    
-    var xhr = new XMLHttpRequest();
-    var URL = "indicatorQuery.php?indicator=" + indicator + '&' + "symbol=" + stockPlotOjbect['Stock Ticker'];
-    console.log(URL);
-    xhr.open("GET", URL, true);
-    xhr.onreadystatechange = function () {
-        if(this.readyState === XMLHttpRequest.DONE && this.status === 200) {
-            var string = xhr.responseText;
-            var obj = JSON.parse(string);
-            console.log(obj);
-            dismissProgress(drawbox);
-            plot(obj);
-        }
-    };
-    xhr.send();
+    plot(obj);
 }

@@ -95,12 +95,12 @@
                 </button>
                 Stock Details 
             </div>
-            <div class="panel-body container">
+            <div class="panel-body row">
                 <div class="row">
                     <div class="col-sm-12">
                     <ul class="nav nav-pills row">
                         <li class="active"><a data-toggle="tab" href="#curstock">Current Stock</a></li>
-                        <li onclick="plotHistChart()"><a data-toggle="tab" href="#histchart">Historical Charts</a></li>
+                        <li ng-click="ctrl.getHistChart()"><a data-toggle="tab" href="#histchart">Historical Charts</a></li>
                         <li><a data-toggle="tab" href="#newsfeed" ng-click="ctrl.getNewsFeeds()">News Feeds</a></li>
                     </ul>
                     </div>
@@ -120,66 +120,67 @@
                                 </span>
                             </div>
                             <div id= "infotab" class="row">
+                                <div class="progress" ng-if="ctrl.progressShow.infotab">
+                                    <div class="progress-bar progress-bar-striped active" role="progressbar" aria-valuenow="50%"></div>
+                                </div>
+                                <div>
+                                    <table>
+                                        <tr ng-repeat="row in ctrl.table">
+                                            <th> {{row.head}} </th>
+                                            <td> {{row.data}} </td>
+                                        </tr>
+                                    </table>
+                                </div>
+                                <div class="alert alert-danger" role="alert" ng-if="ctrl.alertMessageShow.infotab">
+                                    Error! Failed to get current stock data 
+                                </div>
                             </div>
                         </div>
                         <div class="col-sm-6">
                             <div>
                                 <ul class="nav nav-tabs">
-                                    <li class="active"><a data-toggle="tab" href="#stockchart">Price</a></li>
-                                    <li><a data-toggle="tab" onclick="processIndicator('SMA')" href="#SMA">SMA</a></li>
-                                    <li onclick="processIndicator('EMA')"><a data-toggle="tab" href="#EMA">EMA</a></li>
-                                    <li onclick="processIndicator('STOCH')"><a data-toggle="tab" href="#STOCH">STOCH</a></li>
-                                    <li onclick="processIndicator('RSI')"><a data-toggle="tab" href="#RSI">RSI</a></li>
-                                    <li onclick="processIndicator('ADX')"><a data-toggle="tab" href="#ADX">ADX</a></li>
-                                    <li onclick="processIndicator('CCI')"><a data-toggle="tab" href="#CCI">CCI</a></li>
-                                    <li onclick="processIndicator('BBANDS')"><a data-toggle="tab" href="#BBANDS">BBANDS</a></li>
-                                    <li onclick="processIndicator('MACD')"><a data-toggle="tab" href="#MACD">MACD</a></li>
+                                    <li class="active"><a data-toggle="tab" ng-href="#Price" ng-click="ctrl.loadIndicator('Price')">Price</a>
+                                    </li>
+                                    <li ng-repeat="indicator in ctrl.indicators"> 
+                                        <a data-toggle="tab" ng-href="#{{indicator}}" ng-click="ctrl.loadIndicator(indicator)"> {{indicator}} </a> 
+                                    </li>
                                 </ul>
                             </div>
                             <div class="tab-content">
-                                <div id="stockchart" class="tab-pane fade in active" >
-                                    chart
+                                <div id="Price" class="tab-pane fade in active">
+                                    <div class="progress" ng-if="ctrl.progressShow['Price']">
+                                        <div class="progress-bar progress-bar-striped active" role="progressbar" aria-valuenow="50%"></div>
+                                    </div>
+                                    <div class="alert alert-danger" role="alert" ng-if="ctrl.alertMessageShow['Price']"> 
+                                        Error! Failed to get Price data 
+                                    </div>
                                 </div>
-                                <div id="SMA" class="tab-pane fade">
-                                    sma
-                                </div>
-                                <div id="EMA" class="tab-pane fade">
-                                    ema
-                                </div>
-                                <div id="STOCH" class="tab-pane fade">
-                                    stoch
-                                </div>
-                                <div id="RSI" class="tab-pane fade">
-                                    rsi
-                                </div>
-                                <div id="ADX" class="tab-pane fade">
-                                    adx
-                                </div>
-                                <div id="CCI" class="tab-pane fade">
-                                    cci
-                                </div>
-                                <div id="BBANDS" class="tab-pane fade">
-                                    bbands
-                                </div>
-                                <div id="MACD" class="tab-pane fade">
-                                    macd
+                                <div id="{{indicator}}" class="tab-pane fade" ng-repeat=" indicator in ctrl.indicators">
+                                    <div class="progress" ng-if="ctrl.progressShow[indicator]">
+                                        <div class="progress-bar progress-bar-striped active" role="progressbar" aria-valuenow="50%"></div>
+                                    </div>
+                                    <div class="alert alert-danger" role="alert" ng-if="ctrl.alertMessageShow[indicator]"> 
+                                        Error! Failed to get {{indicator}} data 
+                                    </div>
                                 </div>
                             </div>
                         </div>
                     </div>
                     <div id="histchart" class="tab-pane fade">
-                        histchart
+                        <div class="alert alert-danger" role="alert" ng-if="ctrl.alertMessageShow['histchart']">
+                            Error! Failed to get historical charts data 
+                        </div>
                     </div>
                     <div id="newsfeed" class="tab-pane fade">
-                        newsfeed
-                        <div>
-                            <div ng-repeat="item in ctrl.news" class="well newsitem">
-                                <a href="{{item.link}}" target="_blank">
-                                    <h4>{{item.title}} </h4>
-                                </a>
-                                <p> {{item.author}} </p>
-                                <p> {{item.pubDate}} </p>
-                            </div>
+                        <div ng-repeat="item in ctrl.news" class="well newsitem">
+                            <a href="{{item.link}}" target="_blank">
+                                <h4>{{item.title}} </h4>
+                            </a>
+                            <p> {{item.author}} </p>
+                            <p> {{item.pubDate}} </p>
+                        </div>
+                        <div class="alert alert-danger" role="alert" ng-if="ctrl.alertMessageShow['newsfeed']">
+                            Error! Failed to get news feed data 
                         </div>
                     </div>
                 </div>
