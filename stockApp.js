@@ -3,6 +3,8 @@
     var app = angular.module('stockApp', ['ngMessages', 'ngMaterial', 'material.svgAssetsCache']);
     
     app.controller('myCtrl', function($http, $window, $log) {
+        $log.info('Stock App loading:', $window.localStorage);
+
         var self = this;
         
         self.plotObj = $window.stockPlotOjbect;
@@ -39,11 +41,27 @@
         self.indicators = ['SMA', 'EMA', 'STOCH', 'RSI', 'ADX', 'CCI', 'BBANDS', 'MACD'];
         self.loadIndicator = loadIndicator;
 
+        // favorite
+        self.addFav = addFavorite;
+        self.removeFav = removeFavorite;
+        self.getFavs = getFavorites;
+        self.loadFavList = loadFavList;
+
+        self.sortFields = ['Default', 'Symbol', 'Price', 'Change', 'Change Percent', 'Volume']
+        self.sortOrders = ['Ascending', 'Descending'];
+
+        self.favStored = false;
+        self.favList = []; // [{"price":1120.66,"change":"9.06 (0.82%)","volume":"2,311,272"}];
+
+        loadFavList();
+
         for (const indicator of self.indicators) {
             self.progressShow[indicator] = true;
             self.alertMessageShow[indicator] = false;
         }
 
+
+        /* Modules Functions */
         function searchQuery(query) {
             if (query === '') { return []; }
             // make the input Red if all spaces
@@ -113,16 +131,18 @@
             // TODO: clean-up previous display
             cleanup();
             self.favDetToggle = true;
+            self.favStored = false;
             $http.get("stockQuote.php?symbol=" + self.searchText)
             .then(function(response) {
-                self.detailDisabled = false;
+                self.detailDisabled = false;                
                 dismissProgress('infotab');
                 dismissProgress('Price');
                 
                 setInfoTable(response.data);
                 $window.stockPlotOjbect = response.data;
+                self.favStored = 
+                    $window.localStorage.getItem($window.stockPlotOjbect['Stock Ticker']) !== null;
                 $window.plotStockPrice();
-                // $window.showStockDetails(response.data);
             },
                 function(response) {
                 // error callback
@@ -190,7 +210,50 @@
             return $window.stockPlotOjbect !== null;
         }
         
-        
+        function addFavorite() {
+            console.log('addFavorite: called');
+            if (typeof(Storage) !== "undefined") {
+                var curObj = $window.stockPlotOjbect
+
+                var storeObj = {
+                    symbol: curObj['Stock Ticker'],
+                    price: curObj['Last Price'],
+                    change: curObj['Change'],
+                    volume: curObj['Volume']
+                };
+                $window.localStorage.setItem(curObj['Stock Ticker'], 
+                    JSON.stringify(storeObj));
+                self.favStored = true;
+                console.log('addFavorite: success');
+                console.log($window.localStorage);
+                loadFavList();
+            }
+        }
+
+        function removeFavorite(symbol=null) {
+            if (typeof(Storage) !== "undefined") {
+                var curObj = $window.stockPlotOjbect
+                if (symbol === null) { symbol = curObj['Stock Ticker']; }
+                $window.localStorage.removeItem(symbol);
+                self.favStored = false;
+                loadFavList();
+            }
+        }
+
+        function getFavorites(storage) {
+            var items = Array();
+            for (var key in storage) {
+                // console.log(storage.getItem(key));
+                items.push(JSON.parse(storage.getItem(key)));
+            }
+            console.log(items);
+            return items;
+        }
+
+        function loadFavList() {
+            self.favList = getFavorites($window.localStorage);
+            $log.info('favorite list loaded');
+        }
     });
-    console.log('Stock App loaded');
+    // console.log('Stock App loaded');
 })();

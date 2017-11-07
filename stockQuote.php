@@ -7,6 +7,10 @@
             $query_url = "https://www.alphavantage.co/query?function=TIME_SERIES_INTRADAY&interval=1min&symbol={$symbol}&apikey=XJPOXPVZNXYML3L2";
         }
         $content = file_get_contents($query_url);
+        if (!$content) {
+            header("HTTP/1.0 404 network error");
+            return;
+        }
         $obj = json_decode($content);
         
         if (!isset($obj) or isset($obj->{'Error Message'})) {
@@ -51,7 +55,7 @@
         $changePer = round($change / $prices[1] * 100, 2) . '%';
         $changeStr = round($change, 2) . ' (' . $changePer . ')';
         
-        $wrap = array("Stock Ticker" => $symbol, "Last Price" => $lastPrice, "Open" => $lastOpen, 'TimeStamp' => $timeStamp, "Day's Range" => $daysRange, "Volume" => $lastVolume, "Change" => $changeStr, 'dates' => $dates, 'prices' => $prices, 'volumes' => $volumes, 'change' => $change, 'changePer' => $changePer);
+        $wrap = array("Stock Ticker" => $symbol, "Last Price" => $lastPrice, "Open" => $lastOpen, 'TimeStamp' => $timeStamp, "Day's Range" => $daysRange, "Volume" => $lastVolume, "Change" => $changeStr, 'dates' => $dates, 'prices' => $prices, 'volumes' => $volumes, 'change' => $change, 'changePer' => $changePer, 'prevPrice' => $prices[1]);
         $obj = json_encode($wrap, JSON_PRETTY_PRINT);
         echo $obj;
     }

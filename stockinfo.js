@@ -41,12 +41,6 @@ function resetActiveTab() {
     });
 }
 
-function showStockDetails(obj) {
-    console.log(obj);
-    stockPlotOjbect = obj;
-    drawTable();
-    plotStockPrice();
-}
 
 function zip(arr1, arr2) {
     return arr1.map(function (d, i) {return [d, arr2[i]];})
@@ -77,7 +71,7 @@ function plotStockPrice() {
     var maxPrice = Math.max.apply(null, prices);
     var lastDate = dates[0].replace(/-/, '/');
     
-    Highcharts.chart('Price', {
+    Highcharts.chart('Price-plot', {
         chart: {
             zoomType: 'x',
             marginTop: 60,
@@ -87,7 +81,7 @@ function plotStockPrice() {
         },
         subtitle: {
             useHTML: true,
-            text: "<a href='https://www.alphavantage.co/'> Source: Alpha Vantage </a>"
+            text: "<a target='_blank' href='https://www.alphavantage.co/'> Source: Alpha Vantage </a>"
         },
         xAxis: {
             categories: dates,
@@ -175,7 +169,7 @@ function plotHistChart() {
     data.reverse();
     console.log(data);
     
-    Highcharts.stockChart('histchart', {
+    Highcharts.stockChart('histchartplot', {
         chart: {
             zoomType: 'x'
         },
@@ -234,7 +228,8 @@ function plotLineChart(title, dates, seriesData) {
     var symbol = stockPlotOjbect['Stock Ticker'];
     var acroynim = title.split(' ').slice(-1)[0].slice(1,-1);
     
-    Highcharts.chart(acroynim.toUpperCase(), {
+    var containerId = acroynim.toUpperCase() + '-plot';
+    Highcharts.chart(containerId, {
         chart: {
             width: null,
             zoomType: "x"
@@ -244,7 +239,7 @@ function plotLineChart(title, dates, seriesData) {
         },
         subtitle: {
             useHTML: true,
-            text: "<a href='https://www.alphavantage.co/'> Source: Alpha Vantage </a>"
+            text: "<a target='_blank' href='https://www.alphavantage.co/'> Source: Alpha Vantage </a>"
         },
         xAxis: {
             categories: dates,

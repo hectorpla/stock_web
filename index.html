@@ -49,10 +49,6 @@
         </div>
         
         <div class="col-sm-3">
-<!--
-            onclick="console.log(selectedText);
-                        showStockDetails(selectedText, 'infotab', 'stockchart')"
--->
             <button class="btn btn-primary" ng-click="ctrl.getQuote()" ng-disabled="searchForm.autocompleteField.$error.required">
                 <span class="glyphicon glyphicon-search" aria-hidden="true"></span> Get Quote
             </button>
@@ -81,9 +77,39 @@
             </div>
             <div class="panel-body row">
                 <div class="col-sm-12">
-                    <b> Sort by </b>
-                    
-                    <b> Order </b>
+                    <div>
+                        <b> Sort by </b>
+                        <select ng-init="ctrl.sortType=ctrl.sortFields[0]" ng-model="ctrl.sortType" ng-options="field for field in ctrl.sortFields">
+                        </select>
+                        <b> Order </b>
+                        <select ng-init="ctrl.sortOrder=ctrl.sortOrders[0]" ng-model="ctrl.sortOrder" ng-options="o for o in ctrl.sortOrders" ng-disabled="ctrl.sortType == 'Default'">
+                        </select>
+                    </div>
+                    <div>
+                        {{ctrl.favList}}
+                        <table>
+                            <col width="10%">
+                            <col width="20%">
+                            <col width="30%">
+                            <col width="20%">
+                            <col width="20%">
+                            <tr>
+                                <th> Symbol </th>
+                                <th> Stock Price </th>
+                                <th> Change (Change Percent) </th>
+                                <th> Volume </th>
+                                <th> delete </th>
+                            </tr>
+                            
+                            <tr ng-repeat="stock in ctrl.favList">
+                                <td> {{stock.symbol}} </td>
+                                <td> {{stock.price}} </td>
+                                <td> {{stock.change}} </td>
+                                <td> {{stock.volume}} </td>
+                                <td> <span class="glyphicon glyphicon-trash" aria-hidden="true" ng-click="ctrl.removeFav(stock.symbol)"></span> </td>
+                            </tr>
+                        </table>
+                    </div>
                 </div>
             </div>
         </div>
@@ -95,7 +121,7 @@
                 </button>
                 Stock Details 
             </div>
-            <div class="panel-body row">
+            <div class="panel-body col-sm-12">
                 <div class="row">
                     <div class="col-sm-12">
                     <ul class="nav nav-pills row">
@@ -109,78 +135,98 @@
                     <div id="curstock" class="row tab-pane fade in active">
                         <div class="col-sm-6">
                             <div class="row">
+                                <div class="col-sm-12">
                                 <b> Stock Details </b>
-                                <span class="float-right">
-                                    <button class="btn btn-default">
-                                        <span class="glyphicon glyphicon-star yellow button-img" aria-hidden="true"></span>
-                                    </button>
-                                    <button class="btn btn-default">
-                                        <img src="http://cs-server.usc.edu:45678/hw/hw8/images/facebook.png" class="button-img" />
-                                    </button>
-                                </span>
+                                    <span class="float-right">
+                                        <button class="btn btn-default" ng-click="ctrl.addFav()" ng-if=!ctrl.favStored>
+                                            <span class="glyphicon glyphicon-star-empty button-img" aria-hidden="true"></span>
+                                        </button>
+                                        <button class="btn btn-default" ng-click="ctrl.removeFav()" ng-if=ctrl.favStored>
+                                            <span class="glyphicon glyphicon-star yellow button-img"></span>
+                                        </button>
+                                        <button class="btn btn-default">
+                                            <img src="http://cs-server.usc.edu:45678/hw/hw8/images/facebook.png" class="button-img" />
+                                        </button>
+                                    </span>
+                                </div>
                             </div>
                             <div id= "infotab" class="row">
-                                <div class="progress" ng-if="ctrl.progressShow.infotab">
-                                    <div class="progress-bar progress-bar-striped active" role="progressbar" aria-valuenow="50%"></div>
-                                </div>
-                                <div>
-                                    <table>
-                                        <tr ng-repeat="row in ctrl.table">
-                                            <th> {{row.head}} </th>
-                                            <td> {{row.data}} </td>
-                                        </tr>
-                                    </table>
-                                </div>
-                                <div class="alert alert-danger" role="alert" ng-if="ctrl.alertMessageShow.infotab">
-                                    Error! Failed to get current stock data 
+                                <div class="col-sm-12">
+                                    <div class="progress" ng-if="ctrl.progressShow.infotab">
+                                        <div class="progress-bar progress-bar-striped active" role="progressbar" aria-valuenow="50%"></div>
+                                    </div>
+                                    <div>
+                                        <table>
+                                            <col width="50%">
+                                            <col width="50%">
+                                            <tr ng-repeat="row in ctrl.table">
+                                                <th> {{row.head}} </th>
+                                                <td> {{row.data}} </td>
+                                            </tr>
+                                        </table>
+                                    </div>
+                                    <div class="alert alert-danger" role="alert" ng-if="ctrl.alertMessageShow.infotab">
+                                        Error! Failed to get current stock data 
+                                    </div>
                                 </div>
                             </div>
                         </div>
                         <div class="col-sm-6">
-                            <div>
-                                <ul class="nav nav-tabs">
-                                    <li class="active"><a data-toggle="tab" ng-href="#Price" ng-click="ctrl.loadIndicator('Price')">Price</a>
-                                    </li>
-                                    <li ng-repeat="indicator in ctrl.indicators"> 
-                                        <a data-toggle="tab" ng-href="#{{indicator}}" ng-click="ctrl.loadIndicator(indicator)"> {{indicator}} </a> 
-                                    </li>
-                                </ul>
-                            </div>
-                            <div class="tab-content">
-                                <div id="Price" class="tab-pane fade in active">
-                                    <div class="progress" ng-if="ctrl.progressShow['Price']">
-                                        <div class="progress-bar progress-bar-striped active" role="progressbar" aria-valuenow="50%"></div>
-                                    </div>
-                                    <div class="alert alert-danger" role="alert" ng-if="ctrl.alertMessageShow['Price']"> 
-                                        Error! Failed to get Price data 
-                                    </div>
+                            <div class="row">
+                                <div class="col-sm-12">
+                                    <ul class="nav nav-tabs">
+                                        <li class="active"><a data-toggle="tab" ng-href="#Price" ng-click="ctrl.loadIndicator('Price')">Price</a>
+                                        </li>
+                                        <li ng-repeat="indicator in ctrl.indicators"> 
+                                            <a data-toggle="tab" ng-href="#{{indicator}}" ng-click="ctrl.loadIndicator(indicator)"> {{indicator}} </a> 
+                                        </li>
+                                    </ul>
                                 </div>
-                                <div id="{{indicator}}" class="tab-pane fade" ng-repeat=" indicator in ctrl.indicators">
-                                    <div class="progress" ng-if="ctrl.progressShow[indicator]">
-                                        <div class="progress-bar progress-bar-striped active" role="progressbar" aria-valuenow="50%"></div>
+                            </div>
+                            <div class="row">
+                                <div class="col-sm-12 tab-content">
+                                    <div id="Price" class="row tab-pane fade in active">
+                                        <div id="Price-plot" class="col-sm-12" ng-hide="ctrl.progressShow['Price'] || ctrl.alertMessageShow['Price']"></div>
+                                        <div class="" ng-if="ctrl.progressShow['Price']">
+                                            <div class="progress-bar progress-bar-striped active" role="progressbar" aria-valuenow="50%"></div>
+                                        </div>
+                                        <div class="alert alert-danger" role="alert" ng-if="ctrl.alertMessageShow['Price']"> 
+                                            Error! Failed to get Price data 
+                                        </div>
                                     </div>
-                                    <div class="alert alert-danger" role="alert" ng-if="ctrl.alertMessageShow[indicator]"> 
-                                        Error! Failed to get {{indicator}} data 
+                                    <div id="{{indicator}}" class="row tab-pane fade" ng-repeat=" indicator in ctrl.indicators">
+                                        <div id="{{indicator}}-plot" class="col-sm-12" ng-hide="ctrl.progressShow[indicator] || ctrl.alertMessageShow[indicator]"></div>
+                                        <div class="progress" ng-if="ctrl.progressShow[indicator]">
+                                            <div class="progress-bar progress-bar-striped active" role="progressbar" aria-valuenow="50%"></div>
+                                        </div>
+                                        <div class="alert alert-danger" role="alert" ng-if="ctrl.alertMessageShow[indicator]"> 
+                                            Error! Failed to get {{indicator}} data 
+                                        </div>
                                     </div>
                                 </div>
                             </div>
                         </div>
                     </div>
-                    <div id="histchart" class="tab-pane fade">
-                        <div class="alert alert-danger" role="alert" ng-if="ctrl.alertMessageShow['histchart']">
-                            Error! Failed to get historical charts data 
+                    <div id="histchart" class="row tab-pane fade">
+                        <div class="col-sm-12">
+                            <div id="histchartplot"></div>
+                            <div class="alert alert-danger" role="alert" ng-if="ctrl.alertMessageShow['histchart']">
+                                Error! Failed to get historical charts data 
+                            </div>
                         </div>
                     </div>
-                    <div id="newsfeed" class="tab-pane fade">
-                        <div ng-repeat="item in ctrl.news" class="well newsitem">
-                            <a href="{{item.link}}" target="_blank">
-                                <h4>{{item.title}} </h4>
-                            </a>
-                            <p> {{item.author}} </p>
-                            <p> {{item.pubDate}} </p>
-                        </div>
-                        <div class="alert alert-danger" role="alert" ng-if="ctrl.alertMessageShow['newsfeed']">
-                            Error! Failed to get news feed data 
+                    <div id="newsfeed" class="row tab-pane fade">
+                        <div class="col-sm-12">
+                            <div ng-repeat="item in ctrl.news" class="well newsitem">
+                                <a href="{{item.link}}" target="_blank">
+                                    <h4>{{item.title}} </h4>
+                                </a>
+                                <p> {{item.author}} </p>
+                                <p> {{item.pubDate}} </p>
+                            </div>
+                            <div class="alert alert-danger" role="alert" ng-if="ctrl.alertMessageShow['newsfeed']">
+                                Error! Failed to get news feed data 
+                            </div>
                         </div>
                     </div>
                 </div>
