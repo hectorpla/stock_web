@@ -2,7 +2,7 @@
     'use strict';
     var app = angular.module('stockApp', ['ngMessages', 'ngMaterial', 'material.svgAssetsCache']);
     
-    app.controller('myCtrl', function($http, $window, $log) {
+    app.controller('myCtrl', function($http, $window, $interval, $log) {
         $log.info('Stock App loading:', $window.localStorage);
 
         var self = this;
@@ -40,18 +40,26 @@
         self.tabFields = ["Stock Ticker", "Last Price", "Change", "TimeStamp", "Open", "Day's Range", "Volume"];
         self.indicators = ['SMA', 'EMA', 'STOCH', 'RSI', 'ADX', 'CCI', 'BBANDS', 'MACD'];
         self.loadIndicator = loadIndicator;
+        self.clear = clear;
+
+        // share
+        self.curPlot = 'Price';
 
         // favorite
         self.addFav = addFavorite;
         self.removeFav = removeFavorite;
         self.getFavs = getFavorites;
         self.loadFavList = loadFavList;
+        self.refreshFavList = refreshFavList;
 
         self.sortFields = ['Default', 'Symbol', 'Price', 'Change', 'Change Percent', 'Volume']
         self.sortOrders = ['Ascending', 'Descending'];
+        self.mySortKey = mySortKey;
 
+        self.autoRefreshDisabled = true;
         self.favStored = false;
         self.favList = []; // [{"price":1120.66,"change":"9.06 (0.82%)","volume":"2,311,272"}];
+        self.autoRefreshToggle = autoRefreshToggle;
 
         loadFavList();
 
@@ -61,7 +69,8 @@
         }
 
 
-        /* Modules Functions */
+        /* ------------ Modules Functions ----------- */
+            /* Autocomplete */
         function searchQuery(query) {
             if (query === '') { return []; }
             // make the input Red if all spaces
@@ -97,7 +106,7 @@
             return searchText;
         }
         
-        
+            /* Display */
         function dismissProgress(block) {
             self.progressShow[block] = false;
             self.alertMessageShow[block] = false;
@@ -106,17 +115,25 @@
             self.progressShow[block] = false;
             self.alertMessageShow[block] = true;
         }
-        /*
-        * lazy evaluation, only update the stock chart
-        */
+        
+        function clear() {
+            cleanup();
+            self.searchText = '';
+            self.favDetToggle = false;
+            self.detailDisabled = true;
+            $log.info("CLEAR DATA");
+        }
+
+        // TODO: check all previous display is clear
         function cleanup() {
             $window.resetActiveTab();
             $window.initCache();
+            self.news = [];
+            self.table = [];
             // set all progress to true
             for (var block in self.progressShow) {
                 self.alertMessageShow[block] = false;
                 self.progressShow[block] = true;
-                self.table = [];
             }
         }
         
@@ -126,13 +143,18 @@
                 });
         }
 
-        function getQuote() {
-            $log.info('GET QUOTE executes: ' + self.searchText);
+        /*
+        * lazy evaluation, only update the stock chart
+        */
+        function getQuote(symbol=null) {
+            if (!symbol) { symbol = self.searchText; }
+            $log.info('GET QUOTE executes: ' + symbol);
+            $log.info(self.progressShow);
             // TODO: clean-up previous display
             cleanup();
             self.favDetToggle = true;
             self.favStored = false;
-            $http.get("stockQuote.php?symbol=" + self.searchText)
+            $http.get("stockQuote.php?symbol=" + symbol)
             .then(function(response) {
                 self.detailDisabled = false;                
                 dismissProgress('infotab');
@@ -164,6 +186,7 @@
                 console.log('loadIndicator: already loaded');
                 return;
             }
+            self.curPlot = indicator;
             console.log('processing ' + indicator);
             $http.get("indicatorQuery.php?indicator=" + indicator + '&' + "symbol=" + $window.stockPlotOjbect['Stock Ticker'])
             .then(function(response) {
@@ -181,6 +204,7 @@
                 showAlert('histchart');
                 return;
             }
+            dismissProgress('histchart');
             $window.plotHistChart();
         }
         
@@ -197,19 +221,16 @@
                 showAlert('newsfeed');
                 return;
             }
-            return $http.get('newsfeed.php?symbol=' + selectedText)
-            .then(function(obj){
+            return $http.get('newsfeed.php?symbol=' + stockPlotOjbect['Stock Ticker'])
+            .then(function(obj) {
                 $log.info(obj.data);
                 loadNews(obj.data);
+                dismissProgress('newsfeed');
                 return obj.data;
             });
         }
         
-        function checkDetailsAvail() {
-            $log.info('check detail: symbol' + $window.selectedText);
-            return $window.stockPlotOjbect !== null;
-        }
-        
+            /* Favorite List */
         function addFavorite() {
             console.log('addFavorite: called');
             if (typeof(Storage) !== "undefined") {
@@ -219,7 +240,9 @@
                     symbol: curObj['Stock Ticker'],
                     price: curObj['Last Price'],
                     change: curObj['Change'],
-                    volume: curObj['Volume']
+                    volume: curObj['Volume'],
+                    prevPrice: curObj['prevPrice'],
+                    addedOrder: $window.localStorage.length
                 };
                 $window.localStorage.setItem(curObj['Stock Ticker'], 
                     JSON.stringify(storeObj));
@@ -228,6 +251,24 @@
                 console.log($window.localStorage);
                 loadFavList();
             }
+        }
+
+        function mySortKey(stock) {
+            var key = self.sortType;
+            if (key === 'Default') { 
+                self.sortOrder = self.sortOrders[0]; 
+                return stock.addedOrder;
+            }
+            if (key === 'Symbol') {return stock.symbol;}
+            if (key === 'Price') {return stock.price;}
+            if (key === 'Change') {return parseFloat(stock.change);}
+            if (key === 'Change Percent') {
+                return parseFloat(stock.change.split(" ")[1].slice(1, -2));
+            }
+            if (key === 'Volume') {
+                return parseInt(stock.volume.replace(/,/g, ''))
+            }
+            return stock;
         }
 
         function removeFavorite(symbol=null) {
@@ -243,17 +284,71 @@
         function getFavorites(storage) {
             var items = Array();
             for (var key in storage) {
-                // console.log(storage.getItem(key));
+                // console.log(key, storage.getItem(key));
+                if (storage.getItem(key) === null) { continue; }
                 items.push(JSON.parse(storage.getItem(key)));
             }
-            console.log(items);
+            // console.log(items);
             return items;
         }
 
         function loadFavList() {
+            var storage = $window.localStorage;
+            for (var key in storage) {
+                var symbol = null;
+                try {
+                    symbol = JSON.parse(storage.getItem(key)).symbol;
+                }
+                catch (e) {
+                    continue;
+                }
+                if (key !== symbol) {
+                    storage.removeItem(key); 
+                }
+            }
             self.favList = getFavorites($window.localStorage);
             $log.info('favorite list loaded');
         }
+
+        function refreshFavList() {
+            var storage = $window.localStorage;
+            for (var key in storage) {
+                $http.get("stockQuote.php?realtime=true&symbol=" + key)
+                .then(function(response){
+                    $log.info(response.data);
+                    var symbol = response.data['Stock Ticker'];
+                    var obj = JSON.parse(storage.getItem(symbol));
+                    obj.price = response.data['Last Price'];
+
+                    var change = obj.price - obj.prevPrice;
+                    var changePer = change / obj.prevPrice * 100;
+
+                    var changStr = change.toFixed(2) + ' (' + 
+                        changePer.toFixed(2) + '%)';
+                    obj.change = changStr;
+                    storage.setItem(symbol, JSON.stringify(obj));
+                    loadFavList();
+                },
+                    function (response) {
+                        $log.info('refresh failed for ' + key);
+                });
+            }
+        }
+
+        var promise;
+        function autoRefreshToggle() {
+            $log.info('auto-refresh toggle');
+            if (self.autoRefreshDisabled) {
+                $log.info('auto-refreshing stock info');
+                promise = $interval(refreshFavList, 5000);
+            }
+            else {
+                $interval.cancel(promise);
+            }
+            self.autoRefreshDisabled ^= true;
+        }
+
+        // self.$watch(self.autoRefreshDisabled, autoRefreshToggle);
+        // autoRefreshToggle();
     });
-    // console.log('Stock App loaded');
 })();

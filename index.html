@@ -53,7 +53,7 @@
                 <span class="glyphicon glyphicon-search" aria-hidden="true"></span> Get Quote
             </button>
             <button class="btn btn-default" onclick='initCache()'> 
-                <span class="glyphicon glyphicon-refresh" aria-hidden="true"> Clear </span>
+                <span class="glyphicon glyphicon-refresh" aria-hidden="true" ng-click="ctrl.clear()"> Clear </span>
             </button>
         </div>
     </div>
@@ -65,9 +65,9 @@
             <div class="panel-heading row justify-content-between"> 
                 <b> Favorite List </b>
                 <span class="float-right">
-                    Automatic Refresh
-                    <input type="checkbox" data-toggle="toggle">
-                    <button type="button" class="btn btn-default">
+                    <span class="collapse"> Automatic Refresh </span>
+                    <input type="checkbox" data-toggle="toggle" ng-click="ctrl.autoRefreshToggle()" ng-model="ctrl.autoRefreshDisabled">
+                    <button type="button" class="btn btn-default" ng-click="ctrl.refreshFavList()">
                         <span class="glyphicon glyphicon-refresh" aria-hidden="true"></span>
                     </button>
                     <button class="btn btn-default" ng-click="ctrl.favDetToggle=true" ng-disabled="ctrl.detailDisabled">
@@ -82,7 +82,7 @@
                         <select ng-init="ctrl.sortType=ctrl.sortFields[0]" ng-model="ctrl.sortType" ng-options="field for field in ctrl.sortFields">
                         </select>
                         <b> Order </b>
-                        <select ng-init="ctrl.sortOrder=ctrl.sortOrders[0]" ng-model="ctrl.sortOrder" ng-options="o for o in ctrl.sortOrders" ng-disabled="ctrl.sortType == 'Default'">
+                        <select ng-init="ctrl.sortOrder=ctrl.sortOrders[1]" ng-model="ctrl.sortOrder" ng-options="o for o in ctrl.sortOrders" ng-disabled="ctrl.sortType == 'Default'">
                         </select>
                     </div>
                     <div>
@@ -101,8 +101,11 @@
                                 <th> delete </th>
                             </tr>
                             
-                            <tr ng-repeat="stock in ctrl.favList">
-                                <td> {{stock.symbol}} </td>
+                            <tr ng-repeat="stock in ctrl.favList | orderBy : ctrl.mySortKey : ctrl.sortOrder === ctrl.sortOrders[1]">
+                                <td> <a href="#" ng-click="ctrl.getQuote(stock.symbol)">
+                                    {{stock.symbol}} 
+                                    </a>
+                                </td>
                                 <td> {{stock.price}} </td>
                                 <td> {{stock.change}} </td>
                                 <td> {{stock.volume}} </td>
@@ -123,7 +126,7 @@
             </div>
             <div class="panel-body col-sm-12">
                 <div class="row">
-                    <div class="col-sm-12">
+                    <div class="col-sm-12 bottom-buffer">
                     <ul class="nav nav-pills row">
                         <li class="active"><a data-toggle="tab" href="#curstock">Current Stock</a></li>
                         <li ng-click="ctrl.getHistChart()"><a data-toggle="tab" href="#histchart">Historical Charts</a></li>
@@ -138,13 +141,13 @@
                                 <div class="col-sm-12">
                                 <b> Stock Details </b>
                                     <span class="float-right">
-                                        <button class="btn btn-default" ng-click="ctrl.addFav()" ng-if=!ctrl.favStored>
+                                        <button class="btn btn-default" ng-click="ctrl.addFav()" ng-if=!ctrl.favStored ng-disabled="ctrl.progressShow.infotab || ctrl.alertMessageShow.infotab">
                                             <span class="glyphicon glyphicon-star-empty button-img" aria-hidden="true"></span>
                                         </button>
-                                        <button class="btn btn-default" ng-click="ctrl.removeFav()" ng-if=ctrl.favStored>
+                                        <button class="btn btn-default" ng-click="ctrl.removeFav()" ng-if=ctrl.favStored ng-disabled="ctrl.progressShow.infotab || ctrl.alertMessageShow.infotab">
                                             <span class="glyphicon glyphicon-star yellow button-img"></span>
                                         </button>
-                                        <button class="btn btn-default">
+                                        <button class="btn btn-default" ng-disabled="ctrl.progressShow.infotab || ctrl.alertMessageShow.infotab">
                                             <img src="http://cs-server.usc.edu:45678/hw/hw8/images/facebook.png" class="button-img" />
                                         </button>
                                     </span>
@@ -173,7 +176,7 @@
                         </div>
                         <div class="col-sm-6">
                             <div class="row">
-                                <div class="col-sm-12">
+                                <div class="col-sm-12 bottom-buffer">
                                     <ul class="nav nav-tabs">
                                         <li class="active"><a data-toggle="tab" ng-href="#Price" ng-click="ctrl.loadIndicator('Price')">Price</a>
                                         </li>
@@ -185,21 +188,21 @@
                             </div>
                             <div class="row">
                                 <div class="col-sm-12 tab-content">
-                                    <div id="Price" class="row tab-pane fade in active">
-                                        <div id="Price-plot" class="col-sm-12" ng-hide="ctrl.progressShow['Price'] || ctrl.alertMessageShow['Price']"></div>
-                                        <div class="" ng-if="ctrl.progressShow['Price']">
+                                    <div id="Price" class="row justify-content-center tab-pane fade in active">
+                                        <div id="Price-plot" class="col-sm-12" ng-hide="ctrl.progressShow.Price || ctrl.alertMessageShow.Price"></div>
+                                        <div class="col-sm-10 progress" ng-if="ctrl.progressShow.Price">
                                             <div class="progress-bar progress-bar-striped active" role="progressbar" aria-valuenow="50%"></div>
                                         </div>
-                                        <div class="alert alert-danger" role="alert" ng-if="ctrl.alertMessageShow['Price']"> 
+                                        <div class="col-sm-10 alert alert-danger" role="alert" ng-if="ctrl.alertMessageShow.Price">
                                             Error! Failed to get Price data 
                                         </div>
                                     </div>
-                                    <div id="{{indicator}}" class="row tab-pane fade" ng-repeat=" indicator in ctrl.indicators">
+                                    <div id="{{indicator}}" class="row justify-content-center tab-pane fade" ng-repeat=" indicator in ctrl.indicators">
                                         <div id="{{indicator}}-plot" class="col-sm-12" ng-hide="ctrl.progressShow[indicator] || ctrl.alertMessageShow[indicator]"></div>
-                                        <div class="progress" ng-if="ctrl.progressShow[indicator]">
+                                        <div class="col-sm-10 progress" ng-if="ctrl.progressShow[indicator]">
                                             <div class="progress-bar progress-bar-striped active" role="progressbar" aria-valuenow="50%"></div>
                                         </div>
-                                        <div class="alert alert-danger" role="alert" ng-if="ctrl.alertMessageShow[indicator]"> 
+                                        <div class="col-sm-10 alert alert-danger" role="alert" ng-if="ctrl.alertMessageShow[indicator]"> 
                                             Error! Failed to get {{indicator}} data 
                                         </div>
                                     </div>
@@ -210,6 +213,9 @@
                     <div id="histchart" class="row tab-pane fade">
                         <div class="col-sm-12">
                             <div id="histchartplot"></div>
+                            <div class="progress" ng-if="ctrl.progressShow.histchart">
+                                <div class="progress-bar progress-bar-striped active" role="progressbar" aria-valuenow="50%"></div>
+                            </div>
                             <div class="alert alert-danger" role="alert" ng-if="ctrl.alertMessageShow['histchart']">
                                 Error! Failed to get historical charts data 
                             </div>
@@ -224,6 +230,9 @@
                                 <p> {{item.author}} </p>
                                 <p> {{item.pubDate}} </p>
                             </div>
+                            <div class="progress" ng-if="ctrl.progressShow.newsfeed">
+                                <div class="progress-bar progress-bar-striped active" role="progressbar" aria-valuenow="50%"></div>
+                            </div>
                             <div class="alert alert-danger" role="alert" ng-if="ctrl.alertMessageShow['newsfeed']">
                                 Error! Failed to get news feed data 
                             </div>
@@ -234,6 +243,8 @@
         </div>
     </div>
 </div>
+
+<div id='exportImg'> </div>
     
 <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.5.5/angular.min.js"></script>
 <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.5.5/angular-animate.min.js"></script>

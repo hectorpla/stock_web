@@ -2,6 +2,7 @@
 function initCache() {
     stockPlotOjbect = null;
     indPlotObjects = {};
+    exportObjects = {};
 }
 initCache();
 
@@ -12,7 +13,7 @@ function resetActiveTab() {
     function reset(containerClassName, classes, 
                     firstValidChild) {
         var containers = document.getElementsByClassName(containerClassName);
-        for (let container of containers) {
+        for (let container of Array.from(containers)) {
     //        console.log(container);
     //        console.log(container.childNodes);
             for (let child of container.childNodes) {
@@ -71,7 +72,7 @@ function plotStockPrice() {
     var maxPrice = Math.max.apply(null, prices);
     var lastDate = dates[0].replace(/-/, '/');
     
-    Highcharts.chart('Price-plot', {
+    var obj = {
         chart: {
             zoomType: 'x',
             marginTop: 60,
@@ -89,8 +90,8 @@ function plotStockPrice() {
             showEmpty: false,
             reversed: true,
             labels: {
-                step: 5,
-                rotation: -60
+//                step: 5, // give up the 7-day interval
+                autoRotation: [-10, -20, -30, -40, -50, -60, -70]
             }
         },
         yAxis: [
@@ -145,9 +146,11 @@ function plotStockPrice() {
             name: SYMBOL + ' Volume',
             data: volumes,
             color: 'red',
-            maxPointWidth: 5
+            maxPointWidth: 6
         }]
-    });
+    }
+    exportObjects.Price = obj;
+    Highcharts.chart('Price-plot', obj);
 }
 
 function plotHistChart() {
@@ -229,7 +232,7 @@ function plotLineChart(title, dates, seriesData) {
     var acroynim = title.split(' ').slice(-1)[0].slice(1,-1);
     
     var containerId = acroynim.toUpperCase() + '-plot';
-    Highcharts.chart(containerId, {
+    var obj = {
         chart: {
             width: null,
             zoomType: "x"
@@ -246,8 +249,8 @@ function plotLineChart(title, dates, seriesData) {
             tickLength: 0,
             reversed: true, // reverse the x-aix
             labels: {
-                step: 5,
-                rotation: -60
+//                step: 5,
+                autoRotation: [-10, -20, -30, -40, -50, -60, -70]
             }
         },
         yAxis: {
@@ -268,7 +271,9 @@ function plotLineChart(title, dates, seriesData) {
             }
         },
         series: seriesData
-    });
+    };
+    exportObjects[acroynim] = obj;
+    Highcharts.chart(containerId, obj);
 }
 
 function processIndicator(indicator, obj) {

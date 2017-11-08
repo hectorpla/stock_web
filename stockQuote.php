@@ -11,25 +11,29 @@
             header("HTTP/1.0 404 network error");
             return;
         }
+        // echo $content;
         $obj = json_decode($content);
         
-        if (!isset($obj) or isset($obj->{'Error Message'})) {
+        if (!isset($obj) or isset($obj->{'Error Message'}) or isset($obj->{'Information'})) {
             // echo $content;
             header("HTTP/1.0 404 no content related to the query");
             return;
         }
         
         $meta_data = $obj->{'Meta Data'};
-        $time_series = $obj->{'Time Series (Daily)'};
         $timeStamp = $meta_data->{'3. Last Refreshed'};
-        # doubtable
-        $latestRecord = $time_series->{explode(" ", $timeStamp)[0]};
-        $volumeFieldName = '6. volume';
         if ($isRealtime) {
             # some different fields for realtime data
             $time_series = $obj->{'Time Series (1min)'};
             $latestRecord = $time_series->$timeStamp;
             $volumeFieldName = '5. volume';
+
+        }
+        else {
+            $time_series = $obj->{'Time Series (Daily)'};
+            # doubtable
+            $latestRecord = $time_series->{explode(" ", $timeStamp)[0]};
+            $volumeFieldName = '6. volume';
         }
         
         $symbol = $meta_data->{'2. Symbol'};
