@@ -57,7 +57,7 @@
         self.sortOrders = ['Ascending', 'Descending'];
         self.mySortKey = mySortKey;
 
-        self.autoRefreshDisabled = true;
+        self.autoRefreshEnabled = false;
         self.favStored = false;
         self.favList = []; // [{"price":1120.66,"change":"9.06 (0.82%)","volume":"2,311,272"}];
         self.autoRefreshToggle = autoRefreshToggle;
@@ -164,8 +164,9 @@
                 
                 setInfoTable(response.data);
                 $window.stockPlotOjbect = response.data;
+                var key = $window.stockPlotOjbect['Stock Ticker'];
                 self.favStored = 
-                    $window.localStorage.getItem($window.stockPlotOjbect['Stock Ticker']) !== null;
+                    $window.localStorage.getItem(key.toLowerCase()) !== null;
                 $window.plotStockPrice();
             },
                 function(response) {
@@ -318,6 +319,10 @@
                 $http.get("stockQuote.php?realtime=true&symbol=" + key)
                 .then(function(response){
                     $log.info(response.data);
+                    if (typeof(response.data) !== 'object') {
+                        $log.info('fetching latest data failed:', key);
+                        return;
+                    }
                     var symbol = response.data['Stock Ticker'];
                     var obj = JSON.parse(storage.getItem(symbol));
                     obj.price = response.data['Last Price'];
@@ -328,6 +333,9 @@
                     var changStr = change.toFixed(2) + ' (' + 
                         changePer.toFixed(2) + '%)';
                     obj.change = changStr;
+                    if (self.refreshVolume) {
+                        obj.volume = response.data['Volume'];
+                    }
                     storage.setItem(symbol, JSON.stringify(obj));
                     loadFavList();
                 },
@@ -340,19 +348,28 @@
         var promise;
         function autoRefreshToggle() {
             $log.info('auto-refresh toggle');
-            if (self.autoRefreshDisabled) {
+            if (!self.autoRefreshEnabled) {
                 $log.info('auto-refreshing stock info');
                 promise = $interval(refreshFavList, 5000);
+                self.refreshVolume = true;
             }
             else {
-                $interval.cancel(promise);
+                $interval.cancel(promise)
+                self.refreshVolume = false;
             }
-            self.autoRefreshDisabled ^= true;
+            self.autoRefreshEnabled ^= true;
+            console.log(self.autoRefreshEnabled);
         }
+        // jquery in angularjs
+        // can access self
+        $(function() {
+            $('#refresh-tog').change(function() {
+                // console.log('JQuery', self.autoRefreshEnabled);
+                autoRefreshToggle();
+            })
+        })
 
-        // self.$watch(self.autoRefreshDisabled, autoRefreshToggle);
-        // autoRefreshToggle();
-
+        // facebook share
         function sharePlot() {
             var toPlot = $window.exportObjects[self.curPlotIndicator];
             if (self.curPlotIndicator === undefined) {

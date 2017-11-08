@@ -1,5 +1,7 @@
 body {
     background-image: url("http://cs-server.usc.edu:45678/hw/hw8/images/background.png");
+    background-attachment: fixed;
+    min-height: 1500px;
 }
 
 :invalid, :required {
@@ -42,6 +44,8 @@ div.newsitem {
 }
 
 hr {
+    color: white;
+    background-color: white;
     width: 2px;
     margin-top: 20px;
     margin-bottom: 20px;
@@ -99,4 +103,6 @@ hr {
 
 .bottom-buffer {
     margin-bottom: 20px;
+    margin-left: 10px
+    margin-right: 10px;
 }
