@@ -17,6 +17,26 @@
 </head>
     
 <body>
+<script>
+  window.fbAsyncInit = function() {
+    FB.init({
+      appId            : '126883171316784',
+      autoLogAppEvents : true,
+      xfbml            : true,
+      version          : 'v2.11'
+    });
+    FB.AppEvents.logPageView();
+  };
+
+  (function(d, s, id){
+     var js, fjs = d.getElementsByTagName(s)[0];
+     if (d.getElementById(id)) {return;}
+     js = d.createElement(s); js.id = id;
+     js.src = "//connect.facebook.net/en_US/sdk.js";
+     fjs.parentNode.insertBefore(js, fjs);
+   }(document, 'script', 'facebook-jssdk'));
+</script>
+
 <div class="center" ng-controller="myCtrl as ctrl" layout="column" ng-cloak="" ng-app="stockApp">
     <div class="container-fluid well">
         <div class="col-sm-3"> Enter Stock Ticker Symbol <b>*</b> </div>
@@ -147,7 +167,7 @@
                                         <button class="btn btn-default" ng-click="ctrl.removeFav()" ng-if=ctrl.favStored ng-disabled="ctrl.progressShow.infotab || ctrl.alertMessageShow.infotab">
                                             <span class="glyphicon glyphicon-star yellow button-img"></span>
                                         </button>
-                                        <button class="btn btn-default" ng-disabled="ctrl.progressShow.infotab || ctrl.alertMessageShow.infotab">
+                                        <button class="btn btn-default" ng-disabled="ctrl.progressShow.infotab || ctrl.alertMessageShow.infotab" ng-click="ctrl.sharePlot()">
                                             <img src="http://cs-server.usc.edu:45678/hw/hw8/images/facebook.png" class="button-img" />
                                         </button>
                                     </span>
@@ -243,8 +263,6 @@
         </div>
     </div>
 </div>
-
-<div id='exportImg'> </div>
     
 <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.5.5/angular.min.js"></script>
 <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.5.5/angular-animate.min.js"></script>

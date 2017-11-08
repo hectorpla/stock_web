@@ -43,7 +43,8 @@
         self.clear = clear;
 
         // share
-        self.curPlot = 'Price';
+        self.curPlotIndicator = 'Price';
+        self.sharePlot = sharePlot;
 
         // favorite
         self.addFav = addFavorite;
@@ -135,6 +136,7 @@
                 self.alertMessageShow[block] = false;
                 self.progressShow[block] = true;
             }
+            self.curPlotIndicator = 'Price';
         }
         
         function setInfoTable(obj) {
@@ -186,7 +188,7 @@
                 console.log('loadIndicator: already loaded');
                 return;
             }
-            self.curPlot = indicator;
+            self.curPlotIndicator = indicator;
             console.log('processing ' + indicator);
             $http.get("indicatorQuery.php?indicator=" + indicator + '&' + "symbol=" + $window.stockPlotOjbect['Stock Ticker'])
             .then(function(response) {
@@ -350,5 +352,44 @@
 
         // self.$watch(self.autoRefreshDisabled, autoRefreshToggle);
         // autoRefreshToggle();
+
+        function sharePlot() {
+            var toPlot = $window.exportObjects[self.curPlotIndicator];
+            if (self.curPlotIndicator === undefined) {
+                $window.alert(self.curPlotIndicator + 'data not ready');
+                return;
+            }
+            $log.info('going to export:', toPlot);
+            var exportUrl = 'http://export.highcharts.com/';
+            var data = {
+                async: true,
+                type: 'jpeg',
+                width: 500,
+                options: toPlot
+            }
+            $http.post(exportUrl, data)
+            .then(function (response) {
+                // $log.info(response.data);
+                var picUrl = exportUrl + response.data;
+                $log.info('get the file from url: ', picUrl);
+                FB.ui({
+                    app_id: '126883171316784', 
+                    method: 'feed',
+                    picture: picUrl
+                }, (response) => {
+                    if (response && !response.error_message) {
+                        $log.info('Facebook share succeeded');
+                        alert("posted successfully");
+                    }
+                    else {
+                        $log.info('Facebook share failed');
+                        alert("not posted");
+                    }
+                });
+            },
+                function(response) {
+                $log.info('failed to get plot picture'); 
+            })
+        }
     });
 })();
