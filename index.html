@@ -39,12 +39,8 @@
 
 <div class="center" ng-controller="myCtrl as ctrl" layout="column" ng-cloak="" ng-app="stockApp">
     <div class="container-fluid well full-width">
-        <div class="col-sm-3"> Enter Stock Ticker Symbol <b>*</b> </div>
+        <div class="col-sm-3"> Enter Stock Ticker Symbol <span class="red">*</span> </div>
         <div class="col-sm-6">
-<!--
-            <pre>$error = {{ searchForm.autocompleteField.$error | json }}
-            </pre>
--->
             <form name="searchForm">
                 <label>
                 <md-autocomplete class="search-form" md-input-name="autocompleteField" ng-disabled="ctrl.isDisabled" md-no-cache="ctrl.noCache"
@@ -61,9 +57,7 @@
                 </md-autocomplete>
                 </label>
                 <div ng-messages="searchForm.autocompleteField.$error" ng-if="searchForm.autocompleteField.$touched">
-                    <div ng-message="pattern"> invalid input </div>
-                    <div ng-message="maxlength">Your entry is too long.</div>
-                    <div class="message" ng-message="required"> Required </div>
+                    <div class="message" ng-message="required"> Please enter a stock tiker symbol </div>
                 </div>
             </form>
         </div>

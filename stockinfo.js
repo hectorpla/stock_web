@@ -51,7 +51,8 @@ function compressedDates() {
     var dates = null;
     if (stockPlotOjbect.compressedDates === undefined) {
         dates = stockPlotOjbect.dates;
-        dates = dates.slice(0,  CHARTLENGTH).map(function (d) {return        d.slice(5).replace(/-/, '/')});
+        var end = Math.min(CHARTLENGTH, dates.length);
+        dates = dates.slice(0, end).map(function (d) {return d.slice(5).replace(/-/, '/')});
         stockPlotOjbect.compressedDates = dates;
     }
     else {
@@ -63,8 +64,9 @@ function compressedDates() {
 function plotStockPrice() {
     var YEAR = stockPlotOjbect.dates[0].slice(0, 4);
     var dates = compressedDates();
-    var prices = stockPlotOjbect.prices.slice(0, CHARTLENGTH);
-    var volumes = stockPlotOjbect.volumes.slice(0, CHARTLENGTH);
+    var end = Math.min(CHARTLENGTH, dates.length);
+    var prices = stockPlotOjbect.prices.slice(0, end);
+    var volumes = stockPlotOjbect.volumes.slice(0, end);
     console.log(dates);
 
     var SYMBOL = stockPlotOjbect['Stock Ticker'];
@@ -75,10 +77,10 @@ function plotStockPrice() {
     var obj = {
         chart: {
             zoomType: 'x',
-            marginTop: 60,
+            marginTop: 80,
         },
         title: {
-            text: 'Stock Price(' + lastDate + '/' + YEAR + ')'
+            text: SYMBOL + ' Stock Price(' + lastDate + '/' + YEAR + ')'
         },
         subtitle: {
             useHTML: true,
@@ -169,6 +171,7 @@ function plotHistChart() {
     }
     
     var data = zip(dates, prices);
+    data.slice(0, Math.min(1000, data.length));
     data.reverse();
     console.log(data);
     
@@ -194,6 +197,9 @@ function plotHistChart() {
                 count: 6,
                 text: '6m'
             }, {
+                type: 'ytd',
+                text: 'YTD'
+            }, {
                 type: 'year',
                 count: 1,
                 text: '1y'
@@ -201,7 +207,7 @@ function plotHistChart() {
                 type: 'all',
                 text: 'All'
             }],
-            selected: 3
+            selected: 1
         },
         yAxis: {
             title: {
@@ -214,6 +220,18 @@ function plotHistChart() {
         subtitle: {
             useHTML: true,
             text: "<a href='https://www.alphavantage.co/'> Source: Alpha Vantage </a>"
+        },
+        plotOptions: {
+            area: {
+                threshold: null,
+                tooltip: {
+                    valueDecimals: 2
+                }
+            }
+        },
+        tooltip: {
+            shared: true,
+            split: false
         },
         series: [{
             name: 'Price',
@@ -287,13 +305,14 @@ function processIndicator(indicator, obj) {
         
         // cache dates
         if (stockPlotOjbect.dates === undefined) {
-            stockPlotOjbect.dates = obj.dates.slice(0, CHARTLENGTH);
+            var end = Math.min(CHARTLENGTH, obj.dates.length);
+            stockPlotOjbect.dates = obj.dates.slice(0, end);
         }
         dates = compressedDates();
         for (subIndicator of subIndicators) {
             seriesObjs.push({
                 name: symbol + ' ' + subIndicator,
-                data: obj[subIndicator].slice(0, CHARTLENGTH)
+                data: obj[subIndicator].slice(0, Math.min(CHARTLENGTH, dates.length))
             });
         }
         indPlotObject = {

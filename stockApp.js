@@ -136,6 +136,7 @@
                 self.progressShow[block] = true;
             }
             self.curPlotIndicator = 'Price';
+            $window.stockPlotOjbect = null;
         }
         
         function setInfoTable(obj) {

@@ -42,7 +42,7 @@ div.well {
 }
 
 div.newsitem {
-    background-color: (239, 244, 241);
+    background-color: rgb(239, 244, 241);
     margin-left: 6px;
     margin-right: 6px;
 }
@@ -90,6 +90,10 @@ hr {
     color: #eddb00;
 }
 
+.red {
+    color: red;
+}
+
 .button-img {
     max-height: 100%;
     max-width: 100%;
@@ -121,6 +125,6 @@ hr {
 
 .bottom-buffer {
     margin-bottom: 20px;
-    margin-left: 10px;
-    margin-right: 10px;
+    /*margin-left: 10px;
+    margin-right: 10px;*/
 }
