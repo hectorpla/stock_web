@@ -26,7 +26,7 @@
 //            var_dump($default);
             
             array_push($news_array, 
-				array('title' => (string)$default->title, 'link' => $link, 'pubDate' => substr((string)$default->pubDate, 0, -5), 'author' => (string)$sa_base->author_name)
+				array('title' => (string)$default->title, 'link' => $link, 'pubDate' => substr((string)$default->pubDate, 0, -5) . ' EST', 'author' => (string)$sa_base->author_name)
                 );
             
             if (++$count >= 5) break;

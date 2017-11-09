@@ -38,12 +38,14 @@
 </script>
 
 <div class="center" ng-controller="myCtrl as ctrl" layout="column" ng-cloak="" ng-app="stockApp">
-    <div class="container-fluid well full-width">
-        <div class="col-sm-3"> Enter Stock Ticker Symbol <span class="red">*</span> </div>
+    <div class="container-fluid well full-width" style="margin-bottom: 0">
+        <div class="col-sm-3 bottom-buffer"> <b>Enter Stock Ticker Symbol</b> <span class="red">*</span> </div>
         <div class="col-sm-6">
             <form name="searchForm">
-                <label>
-                <md-autocomplete class="search-form" md-input-name="autocompleteField" ng-disabled="ctrl.isDisabled" md-no-cache="ctrl.noCache"
+                <label for="my-search-form" class="visible-md-block visible-lg-block"> 
+                    Stock Market Search
+                </label>
+                <md-autocomplete id="my-search-form" class="search-form bottom-buffer" md-input-name="autocompleteField" ng-disabled="ctrl.isDisabled" md-no-cache="ctrl.noCache"
                 md-selected-item="ctrl.selectedItem" 
                 md-selected-item-change="ctrl.selectedItemChange(item)" 
                 md-search-text="ctrl.searchText" 
@@ -55,7 +57,7 @@
                       <span md-highlight-text="ctrl.searchText" md-highlight-flags="^i">{{item.display}}</span>
                     </md-item-template>
                 </md-autocomplete>
-                </label>
+                
                 <div ng-messages="searchForm.autocompleteField.$error" ng-if="searchForm.autocompleteField.$touched">
                     <div class="message" ng-message="required"> Please enter a stock tiker symbol </div>
                 </div>
@@ -79,7 +81,7 @@
             <div class="panel-heading row justify-content-between"> 
                 <b> Favorite List </b>
                 <span class="float-right">
-                    <span class="collapse"> Automatic Refresh </span>
+                    <span class="visible-md-inline visible-lg-inline"> Automatic Refresh </span>
                     <input id="refresh-tog" type="checkbox" data-toggle="toggle" ng-model="ctrl.autoRefreshEnabled">
                     <button type="button" class="btn btn-default" ng-click="ctrl.refreshFavList()">
                         <span class="glyphicon glyphicon-refresh" aria-hidden="true"></span>
@@ -103,8 +105,8 @@
                             </select>
                         </div>
                     </div>
-                    <div>
-                        {{ctrl.favList}}
+                    <div class="row">
+<!--                        {{ctrl.favList}}-->
                         <table>
                             <col width="10%">
                             <col width="20%">
@@ -151,16 +153,19 @@
                 <div id="my-navigation-row" class="row">
                     <div class="col-sm-12 bottom-buffer">
                         <ul class="nav nav-pills row">
-                            <li class="active"><a data-toggle="tab" href="#curstock">
-                                <span class="glyphicon glyphicon-dashboard" aria-hidden="true"></span>Current Stock
+                            <li class="active">
+                                <a data-toggle="tab" href="#curstock">
+                                    <span class="glyphicon glyphicon-dashboard" aria-hidden="true"></span><span class="visible-md-inline visible-lg-inline">Current</span> Stock
                                 </a>
                             </li>
-                            <li ng-click="ctrl.getHistChart()"><a data-toggle="tab" href="#histchart">
-                                <span class="glyphicon glyphicon-stats" aria-hidden="true"></span>Historical Charts
+                            <li ng-click="ctrl.getHistChart()">
+                                <a data-toggle="tab" href="#histchart">
+                                    <span class="glyphicon glyphicon-stats" aria-hidden="true"></span><span class="visible-md-inline visible-lg-inline">Historical</span> Charts
                                 </a>
                             </li>
-                            <li><a data-toggle="tab" href="#newsfeed" ng-click="ctrl.getNewsFeeds()">
-                                <span class="glyphicon glyphicon-link" aria-hidden="true"></span>News Feeds
+                            <li ng-click="ctrl.getNewsFeeds()">
+                                <a data-toggle="tab" href="#newsfeed">
+                                    <span class="glyphicon glyphicon-link" aria-hidden="true"></span>News <span class="visible-md-inline visible-lg-inline">Feeds</span>
                                 </a>
                             </li>
                         </ul>
@@ -169,22 +174,23 @@
                 <div id="my-content-row" class="row tab-content">
                     <div id="curstock" class="col-sm-12 tab-pane fade in active">
                         <div id="my-stock-row" class="row">
-                            <div class="col-sm-12 bottom-buffer">
-                                <b> Stock Details </b>
-                                <span class="float-right">
-                                        <button class="btn btn-default" ng-click="ctrl.addFav()" ng-if=!ctrl.favStored ng-disabled="ctrl.progressShow.infotab || ctrl.alertMessageShow.infotab">
-                                            <span class="glyphicon glyphicon-star-empty button-img" aria-hidden="true"></span>
-                                        </button>
-                                        <button class="btn btn-default" ng-click="ctrl.removeFav()" ng-if=ctrl.favStored ng-disabled="ctrl.progressShow.infotab || ctrl.alertMessageShow.infotab">
-                                            <span class="glyphicon glyphicon-star yellow button-img"></span>
-                                        </button>
-                                        <button class="btn btn-default" ng-disabled="ctrl.progressShow.infotab || ctrl.alertMessageShow.infotab" ng-click="ctrl.sharePlot()">
-                                            <img src="http://cs-server.usc.edu:45678/hw/hw8/images/facebook.png" class="button-img" />
-                                        </button>
-                                    </span>
-                            </div>
+
                             <div id= "infotab" class="col-sm-6">
                                 <div class="row">
+                                    <div class="col-sm-12 bottom-buffer">
+                                        <b> Stock Details </b>
+                                        <span class="float-right">
+                                                <button class="btn btn-default" ng-click="ctrl.addFav()" ng-if=!ctrl.favStored ng-disabled="ctrl.progressShow.infotab || ctrl.alertMessageShow.infotab">
+                                                    <span class="glyphicon glyphicon-star-empty button-img" aria-hidden="true"></span>
+                                                </button>
+                                                <button class="btn btn-default" ng-click="ctrl.removeFav()" ng-if=ctrl.favStored ng-disabled="ctrl.progressShow.infotab || ctrl.alertMessageShow.infotab">
+                                                    <span class="glyphicon glyphicon-star yellow button-img"></span>
+                                                </button>
+                                                <button class="btn btn-default" ng-disabled="ctrl.progressShow.infotab || ctrl.alertMessageShow.infotab" ng-click="ctrl.sharePlot()">
+                                                    <img src="http://cs-server.usc.edu:45678/hw/hw8/images/facebook.png" class="button-img" />
+                                                </button>
+                                            </span>
+                                    </div>
                                     <div class="col-sm-12">
                                         <div class="progress" ng-if="ctrl.progressShow.infotab">
                                             <div class="progress-bar progress-bar-striped active" role="progressbar" aria-valuenow="50%"></div>
@@ -250,13 +256,13 @@
                             </div>
                         </div>
                     </div>
-                    <div id="histchart" class="row tab-pane fade">
+                    <div id="histchart" class="col-sm-12 tab-pane fade">
                         <div class="col-sm-12">
-                            <div id="histchartplot"></div>
+                            <div id="histchartplot" ng-hide="ctrl.progressShow.histchart || ctrl.alertMessageShow.histchart"></div>
                             <div class="progress" ng-if="ctrl.progressShow.histchart">
                                 <div class="progress-bar progress-bar-striped active" role="progressbar" aria-valuenow="50%"></div>
                             </div>
-                            <div class="alert alert-danger" role="alert" ng-if="ctrl.alertMessageShow['histchart']">
+                            <div class="alert alert-danger" role="alert" ng-if="ctrl.alertMessageShow.histchart">
                                 Error! Failed to get historical charts data 
                             </div>
                         </div>
@@ -267,8 +273,8 @@
                                 <a href="{{item.link}}" target="_blank">
                                     <h4>{{item.title}} </h4>
                                 </a>
-                                <p> {{item.author}} </p>
-                                <p> {{item.pubDate}} </p>
+                                <p> <b> {{item.author}} </b> </p>
+                                <p> <b> {{item.pubDate}} </b> </p>
                             </div>
                             <div class="progress" ng-if="ctrl.progressShow.newsfeed">
                                 <div class="progress-bar progress-bar-striped active" role="progressbar" aria-valuenow="50%"></div>

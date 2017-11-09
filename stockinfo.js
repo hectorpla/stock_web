@@ -131,6 +131,7 @@ function plotStockPrice() {
             column: {
                 pointPadding: 0.5,
                 borderWidth: 0,
+                pointWidth: 1,
                 groupPadding: 0,
                 shadow: false,
                 threshold: null

@@ -211,6 +211,7 @@
         }
 
         function getHistChart() {
+            $log.info($window.stockPlotOjbect);
             if (!$window.stockPlotOjbect) {
                 showAlert('histchart');
                 return;
