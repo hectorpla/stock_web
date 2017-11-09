@@ -58,8 +58,9 @@
         $change = $prices[0] - $prices[1];
         $changePer = round($change / $prices[1] * 100, 2) . '%';
         $changeStr = round($change, 2) . ' (' . $changePer . ')';
+        $lastUpdatedTime = $timeStamp . (count(explode(" ", $timeStamp)) > 1 ? "" : " 16:00:00") . " EST";
         
-        $wrap = array("Stock Ticker" => $symbol, "Last Price" => $lastPrice, "Open" => $lastOpen, 'TimeStamp' => $timeStamp, "Day's Range" => $daysRange, "Volume" => $lastVolume, "Change" => $changeStr, 'dates' => $dates, 'prices' => $prices, 'volumes' => $volumes, 'change' => $change, 'changePer' => $changePer, 'prevPrice' => $prices[1]);
+        $wrap = array("Stock Ticker" => $symbol, "Last Price" => $lastPrice, "Open" => $lastOpen, 'TimeStamp' => $lastUpdatedTime, "Day's Range" => $daysRange, "Volume" => $lastVolume, "Change" => $changeStr, 'dates' => $dates, 'prices' => $prices, 'volumes' => $volumes, 'change' => $change, 'changePer' => $changePer, 'prevPrice' => $prices[1]);
         $obj = json_encode($wrap, JSON_PRETTY_PRINT);
         echo $obj;
     }

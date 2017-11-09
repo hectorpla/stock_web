@@ -37,7 +37,7 @@
 
         self.getHistChart = getHistChart;
         self.getNewsFeeds = getNewsFeeds;
-        self.tabFields = ["Stock Ticker", "Last Price", "Change", "TimeStamp", "Open", "Day's Range", "Volume"];
+        self.tabFields = ["Stock Ticker", "Last Price", "Change", "TimeStamp", "Open", "prevPrice", "Day's Range", "Volume"];
         self.indicators = ['SMA', 'EMA', 'STOCH', 'RSI', 'ADX', 'CCI', 'BBANDS', 'MACD'];
         self.loadIndicator = loadIndicator;
         self.clear = clear;
@@ -80,7 +80,7 @@
                 if (!(obj.data instanceof Array)) { return []; }
                 return obj.data.map(function(record) {
                     return {
-                        sym: record.Symbol,
+                        symbol: record.Symbol,
                         display: record.Symbol + ' - ' + record.Name + ' (' + record.Exchange + ')'
                     };
                 });
@@ -89,9 +89,8 @@
 
         function selectedItemChange(item) {
             $log.info('Item changed to ' + JSON.stringify(item));
-            if (item.sym !== undefined) {
-                self.searchText = item.sym;
-                $window.selectedText = item.sym;
+            if (item && item.symbol) {
+                $window.selectedText = item.symbol;
                 $log.info('global searchText changed to ' + $window.selectedText);
             }
             return;
@@ -140,9 +139,17 @@
         }
         
         function setInfoTable(obj) {
+            function nameOf(field) {
+                if (field == "Stock Ticker") { return "Stock Ticker Symbol"; }
+                if (field == "TimeStamp") { return "Timestamp"; }
+                if (field == "Change") { return "Change (Change Percent)"; }
+                if (field == "prevPrice") { return "Previous Close"; }
+                return field;
+            }
+
             self.table = self.tabFields.map(function(head) {
-                    return {head: head, data: obj[head]}
-                });
+                    return {head: nameOf(head), data: obj[head]}
+            });
         }
 
         /*
@@ -166,7 +173,7 @@
                 $window.stockPlotOjbect = response.data;
                 var key = $window.stockPlotOjbect['Stock Ticker'];
                 self.favStored = 
-                    $window.localStorage.getItem(key.toLowerCase()) !== null;
+                    $window.localStorage.getItem(key.toUpperCase()) !== null;
                 $window.plotStockPrice();
             },
                 function(response) {
@@ -238,16 +245,17 @@
             console.log('addFavorite: called');
             if (typeof(Storage) !== "undefined") {
                 var curObj = $window.stockPlotOjbect
+                var symbol = curObj['Stock Ticker'].toUpperCase();
 
                 var storeObj = {
-                    symbol: curObj['Stock Ticker'],
+                    symbol: symbol,
                     price: curObj['Last Price'],
                     change: curObj['Change'],
                     volume: curObj['Volume'],
                     prevPrice: curObj['prevPrice'],
                     addedOrder: $window.localStorage.length
                 };
-                $window.localStorage.setItem(curObj['Stock Ticker'], 
+                $window.localStorage.setItem(symbol, 
                     JSON.stringify(storeObj));
                 self.favStored = true;
                 console.log('addFavorite: success');
@@ -407,6 +415,17 @@
                 function(response) {
                 $log.info('failed to get plot picture'); 
             })
+        }
+
+        self.stockUp = stockUp;
+        function stockUp(valueStr) {
+            return parseFloat(valueStr) >= 0;
+        }
+        self.isChangeField = isChangeField;
+        function isChangeField(valueStr) {
+            // $log.info(typeof(valueStr));
+            if (typeof(valueStr) !== 'string') { return false; }
+            return valueStr.includes('%');
         }
     });
 })();

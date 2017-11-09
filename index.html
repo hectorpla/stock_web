@@ -38,7 +38,7 @@
 </script>
 
 <div class="center" ng-controller="myCtrl as ctrl" layout="column" ng-cloak="" ng-app="stockApp">
-    <div class="container-fluid well">
+    <div class="container-fluid well full-width">
         <div class="col-sm-3"> Enter Stock Ticker Symbol <b>*</b> </div>
         <div class="col-sm-6">
 <!--
@@ -47,13 +47,13 @@
 -->
             <form name="searchForm">
                 <label>
-                <md-autocomplete md-input-name="autocompleteField" ng-disabled="ctrl.isDisabled" md-no-cache="ctrl.noCache"
+                <md-autocomplete class="search-form form-control" md-input-name="autocompleteField" ng-disabled="ctrl.isDisabled" md-no-cache="ctrl.noCache"
                 md-selected-item="ctrl.selectedItem" 
                 md-selected-item-change="ctrl.selectedItemChange(item)" 
                 md-search-text="ctrl.searchText" 
                 md-search-text-change="ctrl.searchTextChange(ctrl.searchText)"
                 md-items="item in ctrl.searchQuery(ctrl.searchText)" 
-                md-item-text="item.display" placeholder="eg. AAPL" 
+                md-item-text="item.symbol" placeholder="eg. AAPL" 
                 required>
                     <md-item-template>
                       <span md-highlight-text="ctrl.searchText" md-highlight-flags="^i">{{item.display}}</span>
@@ -80,7 +80,7 @@
     
     <hr>
     
-    <div id="stockframe" class="well">
+    <div id="stockframe" class="well full-width">
         <div id="favlist" class="slide-left container-fluid panel panel-default" ng-hide="ctrl.favDetToggle">
             <div class="panel-heading row justify-content-between"> 
                 <b> Favorite List </b>
@@ -127,7 +127,12 @@
                                     </a>
                                 </td>
                                 <td> {{stock.price}} </td>
-                                <td> {{stock.change}} </td>
+                                <td> {{stock.change}}
+                                    <span>
+                                        <img class="table-img" src="http://cs-server.usc.edu:45678/hw/hw8/images/Up.png" ng-if="ctrl.stockUp(stock.change)" />
+                                        <img class="table-img" src="http://cs-server.usc.edu:45678/hw/hw8/images/Down.png" ng-if="!ctrl.stockUp(stock.change)" />
+                                    </span> 
+                                </td>
                                 <td> {{stock.volume}} </td>
                                 <td> <span class="glyphicon glyphicon-trash" aria-hidden="true" ng-click="ctrl.removeFav(stock.symbol)"></span> </td>
                             </tr>
@@ -148,9 +153,18 @@
                 <div class="row">
                     <div class="col-sm-12 bottom-buffer">
                     <ul class="nav nav-pills row">
-                        <li class="active"><a data-toggle="tab" href="#curstock">Current Stock</a></li>
-                        <li ng-click="ctrl.getHistChart()"><a data-toggle="tab" href="#histchart">Historical Charts</a></li>
-                        <li><a data-toggle="tab" href="#newsfeed" ng-click="ctrl.getNewsFeeds()">News Feeds</a></li>
+                        <li class="active"><a data-toggle="tab" href="#curstock">
+                            <span class="glyphicon glyphicon-dashboard" aria-hidden="true"></span>Current Stock
+                            </a>
+                        </li>
+                        <li ng-click="ctrl.getHistChart()"><a data-toggle="tab" href="#histchart">
+                            <span class="glyphicon glyphicon-stats" aria-hidden="true"></span>Historical Charts
+                            </a>
+                        </li>
+                        <li><a data-toggle="tab" href="#newsfeed" ng-click="ctrl.getNewsFeeds()">
+                            <span class="glyphicon glyphicon-link" aria-hidden="true"></span>News Feeds
+                            </a>
+                        </li>
                     </ul>
                     </div>
                 </div>
@@ -184,7 +198,13 @@
                                             <col width="50%">
                                             <tr ng-repeat="row in ctrl.table">
                                                 <th> {{row.head}} </th>
-                                                <td> {{row.data}} </td>
+                                                <td> 
+                                                    {{row.data}} 
+                                                    <span ng-if="ctrl.isChangeField(row.data)">
+                                                        <img class="table-img" src="http://cs-server.usc.edu:45678/hw/hw8/images/Up.png" ng-if="ctrl.stockUp(row.data)" />
+                                                        <img class="table-img" src="http://cs-server.usc.edu:45678/hw/hw8/images/Down.png" ng-if="!ctrl.stockUp(row.data)" />
+                                                    </span>
+                                                </td>
                                             </tr>
                                         </table>
                                     </div>
