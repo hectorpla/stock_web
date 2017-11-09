@@ -29,8 +29,9 @@ div {
 }
 
 div.center {
-    width: 80%;
+    width: 90%;
     margin: 0 auto;
+    /*margin-top: 5px;*/
 }
 
 div.message {

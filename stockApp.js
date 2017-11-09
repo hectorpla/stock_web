@@ -172,9 +172,11 @@
                 
                 setInfoTable(response.data);
                 $window.stockPlotOjbect = response.data;
-                var key = $window.stockPlotOjbect['Stock Ticker'];
-                self.favStored = 
-                    $window.localStorage.getItem(key.toUpperCase()) !== null;
+                var key = $window.stockPlotOjbect['Stock Ticker'].toUpperCase();
+                if ($window.localStorage.getItem(key) !== null) {
+                    addFavorite();
+                }
+                self.favStored = $window.localStorage.getItem(key) !== null;
                 $window.plotStockPrice();
             },
                 function(response) {
@@ -192,7 +194,10 @@
                 showAlert(indicator);
                 return;
             }
-            if (indicator === 'Price') { return; }
+            if (indicator === 'Price') {
+                self.curPlotIndicator = 'Price';
+                return; 
+            }
             if (!self.alertMessageShow[indicator] && !self.progressShow[indicator]) {
                 console.log('loadIndicator: already loaded');
                 return;

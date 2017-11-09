@@ -37,10 +37,10 @@
         }
         
         $symbol = $meta_data->{'2. Symbol'};
-        $lastPrice = +$latestRecord->{'4. close'};
-        $lastOpen = +$latestRecord->{'1. open'};
+        $lastPrice = round(+$latestRecord->{'4. close'}, 2);
+        $lastOpen = round(+$latestRecord->{'1. open'}, 2);
         $lastVolume = number_format(+$latestRecord->{$volumeFieldName});
-        $daysRange = +$latestRecord->{'3. low'} . ' - ' . +$latestRecord->{'2. high'};
+        $daysRange = round(+$latestRecord->{'3. low'}, 2) . ' - ' . round(+$latestRecord->{'2. high'}, 2);
         # TODO: close
         
        
@@ -49,18 +49,29 @@
         $dates = array();
         $prices = array();
         $volumes = array();
+        $count = 0;
         foreach ($time_series as $date => $record) {
+            if ($count++ > 1500) { break; }
             array_push($dates, $date);
             array_push($prices, +$record->{'4. close'});
             array_push($volumes, +$record->{$volumeFieldName});
         }
         
-        $change = $prices[0] - $prices[1];
-        $changePer = round($change / $prices[1] * 100, 2) . '%';
-        $changeStr = round($change, 2) . ' (' . $changePer . ')';
-        $lastUpdatedTime = $timeStamp . (count(explode(" ", $timeStamp)) > 1 ? "" : " 16:00:00") . " EST";
+        $lastUpdatedTime = $timeStamp;
+        if (count(explode(" ", $timeStamp)) > 1) {
+            $prevPrice = $prices[1];
+        }
+        else {
+            $prevPrice = $prices[0];
+            $lastUpdatedTime .= " 16:00:00";
+        }
+        $lastUpdatedTime .= ' EST';
+
+        $change = $prices[0] - $prevPrice;
+        $changePer = round($change / $prevPrice * 100, 2) . '%';
+        $changeStr = number_format($change, 2, '.', '') . ' (' . $changePer . ')';
         
-        $wrap = array("Stock Ticker" => $symbol, "Last Price" => $lastPrice, "Open" => $lastOpen, 'TimeStamp' => $lastUpdatedTime, "Day's Range" => $daysRange, "Volume" => $lastVolume, "Change" => $changeStr, 'dates' => $dates, 'prices' => $prices, 'volumes' => $volumes, 'change' => $change, 'changePer' => $changePer, 'prevPrice' => $prices[1]);
+        $wrap = array("Stock Ticker" => $symbol, "Last Price" => $lastPrice, "Open" => $lastOpen, 'TimeStamp' => $lastUpdatedTime, "Day's Range" => $daysRange, "Volume" => $lastVolume, "Change" => $changeStr, 'dates' => $dates, 'prices' => $prices, 'volumes' => $volumes, 'change' => $change, 'changePer' => $changePer, 'prevPrice' => $prevPrice);
         $obj = json_encode($wrap, JSON_PRETTY_PRINT);
         echo $obj;
     }

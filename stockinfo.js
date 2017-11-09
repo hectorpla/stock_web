@@ -172,16 +172,12 @@ function plotHistChart() {
     }
     
     var data = zip(dates, prices);
-    data.slice(0, Math.min(1000, data.length));
+    data = data.slice(0, Math.min(1000, data.length));
     data.reverse();
     console.log(data);
     
-    Highcharts.stockChart('histchartplot', {
-        chart: {
-            zoomType: 'x'
-        },
-        rangeSelector: {
-            buttons: [{
+    var buttons = [
+            {
                 type: 'week',
                 count: 1,
                 text: '1w'
@@ -207,8 +203,39 @@ function plotHistChart() {
             }, {
                 type: 'all',
                 text: 'All'
-            }],
-            selected: 1
+            }];
+    if (screen.width < 500) {
+        buttons = [
+            {
+                type: 'month',
+                count: 1,
+                text: '1m'
+            }, {
+                type: 'month',
+                count: 3,
+                text: '3m'
+            },{
+                type: 'month',
+                count: 6,
+                text: '6m'
+            }, {
+                type: 'year',
+                count: 1,
+                text: '1y'
+            }, {
+                type: 'all',
+                text: 'All'
+            }
+        ];
+    }
+    
+    Highcharts.stockChart('histchartplot', {
+        chart: {
+            zoomType: 'x'
+        },
+        rangeSelector: {
+            buttons: buttons,
+            selected: 0
         },
         yAxis: {
             title: {
@@ -220,7 +247,7 @@ function plotHistChart() {
         },
         subtitle: {
             useHTML: true,
-            text: "<a href='https://www.alphavantage.co/'> Source: Alpha Vantage </a>"
+            text: "<a target='_blank' href='https://www.alphavantage.co/'> Source: Alpha Vantage </a>"
         },
         plotOptions: {
             area: {
