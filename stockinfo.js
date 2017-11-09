@@ -6,7 +6,7 @@ function initCache() {
 }
 initCache();
 
-var CHARTLENGTH = 100;
+var CHARTLENGTH = 128;
 
 
 function resetActiveTab() {

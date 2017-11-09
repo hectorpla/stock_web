@@ -25,6 +25,7 @@ tr:nth-child(odd) {
 
 div {
     /*margin: 5px 0 0 5px;*/
+    /*overflow: hidden;*/
 }
 
 div.center {

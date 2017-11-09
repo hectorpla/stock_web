@@ -97,13 +97,17 @@
             </div>
             <div class="panel-body row">
                 <div class="col-sm-12">
-                    <div>
-                        <b> Sort by </b>
-                        <select ng-init="ctrl.sortType=ctrl.sortFields[0]" ng-model="ctrl.sortType" ng-options="field for field in ctrl.sortFields">
-                        </select>
-                        <b> Order </b>
-                        <select ng-init="ctrl.sortOrder=ctrl.sortOrders[1]" ng-model="ctrl.sortOrder" ng-options="o for o in ctrl.sortOrders" ng-disabled="ctrl.sortType == 'Default'">
-                        </select>
+                    <div class="row">
+                        <div class="form-group">
+                            <label><b> Sort by </b></label>
+                            <select ng-init="ctrl.sortType=ctrl.sortFields[0]" ng-model="ctrl.sortType" ng-options="field for field in ctrl.sortFields">
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <b> Order </b>
+                            <select ng-init="ctrl.sortOrder=ctrl.sortOrders[1]" ng-model="ctrl.sortOrder" ng-options="o for o in ctrl.sortOrders" ng-disabled="ctrl.sortType == 'Default'">
+                            </select>
+                        </div>
                     </div>
                     <div>
                         {{ctrl.favList}}
@@ -118,7 +122,7 @@
                                 <th> Stock Price </th>
                                 <th> Change (Change Percent) </th>
                                 <th> Volume </th>
-                                <th> delete </th>
+                                <th>  </th>
                             </tr>
                             
                             <tr ng-repeat="stock in ctrl.favList | orderBy : ctrl.mySortKey : ctrl.sortOrder === ctrl.sortOrders[1]">
@@ -142,8 +146,8 @@
             </div>
         </div>
 
-        <div id="details" class="slide-right row panel panel-default" ng-hide="!ctrl.favDetToggle">
-            <div class="panel-heading"> 
+        <div id="details" class="row slide-right panel panel-default" ng-hide="!ctrl.favDetToggle">
+            <div class="panel-heading col-sm-12"> 
                 <button class="btn btn-default" ng-click="ctrl.favDetToggle=false">
                     <span class="glyphicon glyphicon-chevron-left"></span>
                 </button>
@@ -152,27 +156,27 @@
             <div class="panel-body col-sm-12">
                 <div class="row">
                     <div class="col-sm-12 bottom-buffer">
-                    <ul class="nav nav-pills row">
-                        <li class="active"><a data-toggle="tab" href="#curstock">
-                            <span class="glyphicon glyphicon-dashboard" aria-hidden="true"></span>Current Stock
-                            </a>
-                        </li>
-                        <li ng-click="ctrl.getHistChart()"><a data-toggle="tab" href="#histchart">
-                            <span class="glyphicon glyphicon-stats" aria-hidden="true"></span>Historical Charts
-                            </a>
-                        </li>
-                        <li><a data-toggle="tab" href="#newsfeed" ng-click="ctrl.getNewsFeeds()">
-                            <span class="glyphicon glyphicon-link" aria-hidden="true"></span>News Feeds
-                            </a>
-                        </li>
-                    </ul>
+                        <ul class="nav nav-pills row">
+                            <li class="active"><a data-toggle="tab" href="#curstock">
+                                <span class="glyphicon glyphicon-dashboard" aria-hidden="true"></span>Current Stock
+                                </a>
+                            </li>
+                            <li ng-click="ctrl.getHistChart()"><a data-toggle="tab" href="#histchart">
+                                <span class="glyphicon glyphicon-stats" aria-hidden="true"></span>Historical Charts
+                                </a>
+                            </li>
+                            <li><a data-toggle="tab" href="#newsfeed" ng-click="ctrl.getNewsFeeds()">
+                                <span class="glyphicon glyphicon-link" aria-hidden="true"></span>News Feeds
+                                </a>
+                            </li>
+                        </ul>
                     </div>
                 </div>
                 <div class="row tab-content">
                     <div id="curstock" class="row tab-pane fade in active">
                         <div class="col-sm-6">
-                            <div class="row">
-                                <div class="col-sm-12">
+                            <div class="row bottom-buffer">
+                                <div class="">
                                 <b> Stock Details </b>
                                     <span class="float-right">
                                         <button class="btn btn-default" ng-click="ctrl.addFav()" ng-if=!ctrl.favStored ng-disabled="ctrl.progressShow.infotab || ctrl.alertMessageShow.infotab">
@@ -230,13 +234,18 @@
                                 <div class="col-sm-12 tab-content">
                                     <div id="Price" class="row justify-content-center tab-pane fade in active">
                                         <div id="Price-plot" class="col-sm-12" ng-hide="ctrl.progressShow.Price || ctrl.alertMessageShow.Price"></div>
-                                        <div class="col-sm-10 progress" ng-if="ctrl.progressShow.Price">
-                                            <div class="progress-bar progress-bar-striped active" role="progressbar" aria-valuenow="50%"></div>
+                                        <div class="row">
+                                            <div class="col-sm-12 progress" ng-if="ctrl.progressShow.Price">
+                                                <div class="progress-bar progress-bar-striped active" role="progressbar" aria-valuenow="50%"></div>
+                                            </div>
                                         </div>
-                                        <div class="col-sm-10 alert alert-danger" role="alert" ng-if="ctrl.alertMessageShow.Price">
-                                            Error! Failed to get Price data 
+                                        <div class="row">
+                                            <div class="col-sm-12 alert alert-danger" role="alert" ng-if="ctrl.alertMessageShow.Price">
+                                                Error! Failed to get Price data 
+                                            </div>
                                         </div>
                                     </div>
+                                    
                                     <div id="{{indicator}}" class="row justify-content-center tab-pane fade" ng-repeat=" indicator in ctrl.indicators">
                                         <div id="{{indicator}}-plot" class="col-sm-12" ng-hide="ctrl.progressShow[indicator] || ctrl.alertMessageShow[indicator]"></div>
                                         <div class="col-sm-10 progress" ng-if="ctrl.progressShow[indicator]">
