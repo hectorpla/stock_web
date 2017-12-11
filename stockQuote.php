@@ -62,13 +62,13 @@
             $prevPrice = $prices[1];
         }
         else {
-            $prevPrice = $prices[0];
+            $prevPrice = $prices[1]; // edited Nov.30, 17
             $lastUpdatedTime .= " 16:00:00";
         }
         $lastUpdatedTime .= ' EST';
 
         $change = $prices[0] - $prevPrice;
-        $changePer = round($change / $prevPrice * 100, 2) . '%';
+        $changePer = number_format($change / $prevPrice * 100, 2, '.', '') . '%';
         $changeStr = number_format($change, 2, '.', '') . ' (' . $changePer . ')';
         
         $wrap = array("Stock Ticker" => $symbol, "Last Price" => $lastPrice, "Open" => $lastOpen, 'TimeStamp' => $lastUpdatedTime, "Day's Range" => $daysRange, "Volume" => $lastVolume, "Change" => $changeStr, 'dates' => $dates, 'prices' => $prices, 'volumes' => $volumes, 'change' => $change, 'changePer' => $changePer, 'prevPrice' => $prevPrice);

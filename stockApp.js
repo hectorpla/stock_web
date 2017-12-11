@@ -121,7 +121,7 @@
             self.searchText = '';
             self.favDetToggle = false;
             self.detailDisabled = true;
-            $log.info("CLEAR DATA");
+//            $log.info("CLEAR DATA");
         }
 
         // TODO: check all previous display is clear
@@ -164,9 +164,10 @@
             cleanup();
             self.favDetToggle = true;
             self.favStored = false;
+            self.detailDisabled = false;
             $http.get("stockQuote.php?symbol=" + symbol)
             .then(function(response) {
-                self.detailDisabled = false;                
+                // originally unblock detail here              
                 dismissProgress('infotab');
                 dismissProgress('Price');
                 
@@ -184,6 +185,7 @@
                 $log.info('error call-back!');
                 showAlert('infotab');
                 showAlert('Price');
+                // self.detailDisabled = true; // 
                 $window.stockPlotOjbect = null;
             });
         }
@@ -260,7 +262,7 @@
                     change: curObj['Change'],
                     volume: curObj['Volume'],
                     prevPrice: curObj['prevPrice'],
-                    addedOrder: $window.localStorage.length
+                    addedOrder: $window.localStorage.length // buggy code, id with replicates, not monotonic
                 };
                 $window.localStorage.setItem(symbol, 
                     JSON.stringify(storeObj));

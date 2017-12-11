@@ -1,4 +1,5 @@
 <?php
+    header('Access-Control-Allow-Origin: *');
     if(isset($_GET)) {
         $symbol = $_GET['symbol'];
         $indicator = $_GET['indicator'];
@@ -10,7 +11,7 @@
             echo $content;
             return;
         }
-        
+
         $meta_data = $obj->{'Meta Data'};
         $lastDate = $meta_data->{'3: Last Refreshed'};
         $symbol = $meta_data->{"1: Symbol"};

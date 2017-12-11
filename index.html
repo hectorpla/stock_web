@@ -127,7 +127,8 @@
                                     </a>
                                 </td>
                                 <td> {{stock.price}} </td>
-                                <td> {{stock.change}}
+                                <td ng-style="ctrl.stockUp(stock.change) && {'color': 'green'} || {'color': 'red'}"> 
+                                    {{stock.change}}
                                     <span>
                                         <img class="table-img" src="http://cs-server.usc.edu:45678/hw/hw8/images/Up.png" ng-if="ctrl.stockUp(stock.change)" />
                                         <img class="table-img" src="http://cs-server.usc.edu:45678/hw/hw8/images/Down.png" ng-if="!ctrl.stockUp(stock.change)" />
@@ -201,7 +202,7 @@
                                                 <col width="50%">
                                                 <tr ng-repeat="row in ctrl.table">
                                                     <th> {{row.head}} </th>
-                                                    <td> 
+                                                    <td ng-style="ctrl.isChangeField(row.data) &&(ctrl.stockUp(row.data) && {'color': 'green'} || {'color': 'red'})">
                                                         {{row.data}} 
                                                         <span ng-if="ctrl.isChangeField(row.data)">
                                                             <img class="table-img" src="http://cs-server.usc.edu:45678/hw/hw8/images/Up.png" ng-if="ctrl.stockUp(row.data)" />

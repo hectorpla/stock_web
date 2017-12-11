@@ -109,7 +109,7 @@ function plotStockPrice() {
             },
             gridLineWidth: 0,
             min: 0,
-            max: Math.ceil(maxVolume * 1.5),
+            max: Math.ceil(maxVolume * 3),
             endOnTick: false,
             opposite: true
         }],
