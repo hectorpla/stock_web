@@ -1,6 +1,6 @@
 (function () {
     'use strict';
-    var app = angular.module('stockApp', ['ngMessages', 'ngMaterial', 'material.svgAssetsCache']);
+    var app = angular.module('stockApp', ['ngMessages', 'ngMaterial']);
     
     app.controller('myCtrl', function($http, $window, $interval, $log) {
         $log.info('Stock App loading:', $window.localStorage);
